@@ -11,10 +11,18 @@
 	
 	<img class="shapejs" src="Resources/test images/navCoreLogo.png" />
 	<script type="text/javascript">
-		var shape1 = new Shape({
-			initObjects: []
+
+		var shape1 = new ShapeJS({
+			initObjects: [new fabric.Rect({width:30,height:30})],
+			plugins: {
+				'base2':{
+
+				},
+				'base3':{
+
+				}
+			}
 		}, ".shapejs");
-		console.log(shape1.Plugin());
 	</script>
 </body>
 </html>

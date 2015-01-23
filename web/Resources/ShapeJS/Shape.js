@@ -10,7 +10,7 @@
 	'use strict'; // forces you to instantiate variables by using 'var'
 
 	//==============================================================================
-	//==========================helper functions====================================
+	//==========================Helper functions====================================
 	//==============================================================================
 
 	/*
@@ -18,17 +18,17 @@
 	*/
 	function extend(objA, objB){
 		var prop;
-		for (prop in objA){
+		for (prop in objB){
 			if (objB.hasOwnProperty(prop)){
 				objA[prop] = objB[prop];
 			};
 		}
-		
 		return objA;
 	}
 
 	/*
 	used to create a element using a string and return it
+	//TODO
 	*/
 	function createHTMLElement(str){
 		var element = document.createElement('div');
@@ -41,7 +41,34 @@
 	}
 
 	/*
-	creates coordinates for the objects added to the canvas on init
+	load a js or css file dynamically and call a callback
+	*/
+	function loadJSFile(filePath, callback){
+		var fileRef;
+		if (!filePath) throw "No file to load";
+		fileRef = document.createElement('script');
+		fileRef.type = 'text/javascript';
+		if (typeof callback === 'function'){
+			if(fileRef.readyState) {  //IE
+				script.onreadystatechange = function() {
+					if ( fileRef.readyState === "loaded" || fileRef.readyState === "complete" ) {
+						fileRef.onreadystatechange = null;
+						callback();
+					}
+				};
+			} else {  //Others
+				fileRef.onload = function() {
+					callback();
+				};
+			}
+		};
+
+		fileRef.src = filePath;
+		document.getElementsByTagName("head")[0].appendChild(fileRef);
+	}
+
+	/*
+	Creates coordinates for the objects added to the canvas on object init
 	*/
 	function getCoords(offset, limit){
 		var off = offset || 50;
@@ -54,11 +81,25 @@
 		}
 	}
 
+	/*
+	Helper methods to get current script paths and folder
+	*/
+	var scriptFullPath = function(){
+		var scripts = document.getElementsByTagName('script');
+		var index = scripts.length - 1;
+		return scripts[index].src;
+	}();
+	var scriptJSPath = function(){
+		return scriptFullPath.substring(0,scriptFullPath.lastIndexOf("/")+1);
+	}();
+
 	//==============================================================================
 	//==========================The core library====================================
 	//==============================================================================
+	
 
 	function ShapeJS(options, replaceEl){
+
 		if (typeof fabric === "undefined"){
 			throw "Fabric.js is required for this library";
 		}
@@ -66,8 +107,9 @@
 	}
 
 	//SO it can be instantiated from outside
-	window.Shape = ShapeJS;
+	window.ShapeJS = ShapeJS;
 	
+	ShapeJS.plugins = {};
 	
 	ShapeJS.prototype = {
 		defaults: {
@@ -77,15 +119,16 @@
 				height: 150,
 				rescale: 'auto'
 			},
-			plugins:{
-
-			}
+			pluginPath:scriptJSPath+'plugins',
+			debug: false,
+			defaultPlugins: {
+				'base':{
+					'ok':'ok'
+				}
+			},
 		},
 
-		options: {
-
-		},
-
+		
 		/*
 		Init for the Core ShapeJS Object
 		- Set the options by combining the defaults and passing in new ones.
@@ -124,7 +167,6 @@
 			this.initPage();
 
 			this.initFabricCanvasAndInitObjects();
-			
 			return this;
 		},
 
@@ -138,9 +180,6 @@
 
 			var toolbar = document.createElement('div');
 			var toolbarActions = createHTMLElement('<ul class="shapejs-toolbar-actions"></ul>');
-			/*toolbarActions.appendChild(createHTMLElement("<li>File<ul></ul></li>"));
-			toolbarActions.appendChild(createHTMLElement("<li>Edit<ul></ul></li>"));
-			toolbarActions.appendChild(createHTMLElement("<li>View<ul></ul></li>"));*/
 			toolbar.className = "shapejs-toolbar";
 			toolbar.appendChild(toolbarActions);
 			container.appendChild(toolbar);
@@ -182,7 +221,7 @@
 					left: coords.left,
 					top: coords.top
 				});
-				this.canvas.add(initObjects[i]);
+
 
 				if (this.options.canvas.rescale){
 					if (this.canvas.width < initObjects[i].width){
@@ -192,27 +231,63 @@
 						this.canvas.setHeight(initObjects[i].getHeight());
 					}
 				}
+
+				this.canvas.add(initObjects[i]);
 			}
-			
-		},
-
-		/*
-
-		*/
-		initPlugins: function(){
-			this.canvas.on('object:moving', function(options){
-				options.target.setCoords();
-			});
-
 			return this;
+
 		},
 
 		//==============================================================================
 		//==========================The plugin support==================================
 		//==============================================================================
+		/*
 
+		*/
+		addPlugins: function(){
+			
+			return this;
+		},
+
+		/*
+
+		*/
+		removePlugins: function(){
+
+		},
+
+		/*
+		Instantiate the plugins synchronasly after putting them together
+
+		Sets the shapejs object and the options in the plugin
+		*/
+		initPlugins: function(){
+			var _this = this;
+			var pluginFolder = this.options.pluginPath+'/';
+			var all_plugins_objs = extend(this.options.defaultPlugins, this.options.plugins);
+			var all_plugins_arr = Object.keys(all_plugins_objs);
+
+			var index = 0;
+			function loadJS(index){
+				var name = all_plugins_arr[index];
+				loadJSFile(pluginFolder+name+"/"+name+'.js', function(){
+					ShapeJS.plugins[name](_this, all_plugins_objs[name]);
+					if (index < all_plugins_arr.length - 1){
+						index++;
+						loadJS(index);
+					}
+				});
+			}
+
+			loadJS(index);
+
+			return this;
+		},
+		
+		/*
+
+		*/
 		Plugin: function(options){
-			var shapeJs = this;
 			function plugin(){
 				return this.init();
 			};
@@ -225,11 +300,10 @@
 				},
 				init: function(){
 					this.options = extend(this.defaults, options);
-					this.shapeJs = shapeJs;
 				}
 			}
 			return new plugin();//causes the function to become a object type
-		},
+		}
 	}
 	
 }())
