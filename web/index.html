@@ -1,0 +1,20 @@
+<!DOCTYPE html5>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Insert title here</title>
+	<link rel="stylesheet" type="text/css" href="Resources/ShapeJS/Shape.css" />
+</head>
+<body>
+	<script src="Resources/fabric.js/fabric.min.js"></script>
+	<script src="Resources/ShapeJS/Shape.js"></script>
+	
+	<img class="shapejs" src="Resources/test images/navCoreLogo.png" />
+	<script type="text/javascript">
+		var shape1 = new Shape({
+			initObjects: []
+		}, ".shapejs");
+		console.log(shape1.Plugin());
+	</script>
+</body>
+</html>

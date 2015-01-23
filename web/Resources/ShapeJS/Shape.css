@@ -1,0 +1,65 @@
+/*
+	-Karandeep Singh (1/22/2015)
+*/
+/**
+ * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)
+ * http://cssreset.com
+ */
+
+.shapejs-container{
+	position: relative;
+}
+
+.shapejs-toolbar{
+	height: 28px;
+	background-color: #ccc;
+	color:#eee;
+}
+
+.shapejs-toolbar > .shapejs-toolbar-actions{
+	padding: 0px;
+	margin: 0px;
+	list-style: none;
+	display: inline-block;
+}
+
+.shapejs-toolbar > .shapejs-toolbar-actions > li{
+	padding: 5px 10px;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.shapejs-toolbar > .shapejs-toolbar-actions > li:hover{
+	background-color: #aaa;
+	position: relative;
+}
+
+.shapejs-toolbar > .shapejs-toolbar-actions > li > ul{
+	padding: 5px 10px;
+	background-color: #fff;
+	border: 1px solid #aaa;
+	border-top: 0px;
+	position: absolute;
+	top: 28px;
+	left: 0px;
+	display: none;
+	z-index: 9999999;
+}
+
+.shapejs-toolbar > .shapejs-toolbar-actions > li:hover > ul{
+	display: block;
+}
+
+.shapejs-toolbox{
+
+}
+
+.shapejs-sub-toolbar{
+
+}
+
+.shapejs-canvas-container{
+	position: absolute;;
+	left: 0px;
+	top: 28px;
+}
