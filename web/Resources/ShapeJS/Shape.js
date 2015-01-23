@@ -94,7 +94,7 @@
 	}();
 
 	//==============================================================================
-	//==========================The core library====================================
+	//==========================The core library and DOM============================
 	//==============================================================================
 	
 
@@ -164,44 +164,32 @@
 		Init the fabric objects and init objects
 		*/
 		initDOM: function(){
-			this.initPage();
-
-			this.initFabricCanvasAndInitObjects();
-			return this;
-		},
-
-		/*
-		Sets the initial DOM structure for plugin support
-		*/
-		initPage: function(){
 			var _this = this;
-			var container = document.createElement('div');
-			container.className = "shapejs-container";
+			var container = createHTMLElement('<div class="shapejs-container"></div>');
 
-			var toolbar = document.createElement('div');
-			var toolbarActions = createHTMLElement('<ul class="shapejs-toolbar-actions"></ul>');
-			toolbar.className = "shapejs-toolbar";
-			toolbar.appendChild(toolbarActions);
+			var toolbar = createHTMLElement('<ul class="shapejs-toolbar"></ul>');
 			container.appendChild(toolbar);
 
-			var toolbox = document.createElement('div');
-			toolbox.className = "shapejs-toolbox";
+			var toolbox = createHTMLElement('<div class="shapejs-toolbox"></div>');
 			container.appendChild(toolbox);
 
-			var subToolbar = document.createElement('div');
-			subToolbar.className = "shapejs-sub-toolbar";
+			var subToolbar = createHTMLElement('<ul class="shapejs-sub-toolbar"></ul>');
 			container.appendChild(subToolbar);
 
-			var canvasContainer = document.createElement('div');
-			canvasContainer.className = "shapejs-canvas-container";
+			var canvasContainer = createHTMLElement('<div class="shapejs-canvas-container"></div>');
 			container.appendChild(canvasContainer);
 
 			this.canvasDOM = document.createElement('Canvas');
-			canvasContainer.appendChild(this.canvasDOM);
 			this.canvasDOM.width = this.options.canvas.width;
 			this.canvasDOM.height = this.options.canvas.height;
+			canvasContainer.appendChild(this.canvasDOM);
 			//canvas has to exist on page before fabric canvas object creation
 			this.replaceEl.parentNode.replaceChild(container, this.replaceEl);
+
+			//init fabric stuff
+			this.initFabricCanvasAndInitObjects();
+
+			return this;
 		},
 
 		/*
@@ -238,7 +226,29 @@
 
 		},
 
+		//============================The DOM support===================================
 		//==============================================================================
+		/*
+		
+		*/
+		addToolbarActions: function(){
+
+		},
+
+		/*
+		
+		*/
+		addToolboxActions: function(){
+
+		},
+
+		/*
+		
+		*/
+		addSubToolbarActions: function(toolbarAction){
+
+		},
+
 		//==========================The plugin support==================================
 		//==============================================================================
 		/*
@@ -257,7 +267,7 @@
 		},
 
 		/*
-		Instantiate the plugins synchronasly after putting them together
+		Instantiate the plugins synchronasly after putting them in an array
 
 		Sets the shapejs object and the options in the plugin
 		*/
@@ -285,7 +295,7 @@
 		},
 		
 		/*
-
+		The Plugin Object that the plugins must instatiate for increase functionality
 		*/
 		Plugin: function(options){
 			function plugin(){
