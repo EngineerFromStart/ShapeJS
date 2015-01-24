@@ -69,6 +69,8 @@
 
 	/*
 	Creates coordinates for the objects added to the canvas on object init
+
+	takes a limit so object doesnt go off;
 	*/
 	function getCoords(offset, limit){
 		var off = offset || 50;
@@ -226,29 +228,6 @@
 
 		},
 
-		//============================The DOM support===================================
-		//==============================================================================
-		/*
-		
-		*/
-		addToolbarActions: function(){
-
-		},
-
-		/*
-		
-		*/
-		addToolboxActions: function(){
-
-		},
-
-		/*
-		
-		*/
-		addSubToolbarActions: function(toolbarAction){
-
-		},
-
 		//==========================The plugin support==================================
 		//==============================================================================
 		/*
@@ -313,6 +292,49 @@
 				}
 			}
 			return new plugin();//causes the function to become a object type
+		},
+
+		//============================The DOM support===================================
+		//==============================================================================
+		/*
+		
+		*/
+		createToolbarActions: function(label, dropdown){
+			var elStr;
+			if (dropdown) elStr = '<li class="shapejs-toolbar-actions">'+label+'\
+				<ul>'+ dropdown+'</ul>\
+				</li>';
+			else elStr = '<li class="shapejs-toolbar-actions">'+label+'</li>';
+			return createHTMLElement(elStr);
+		},
+
+		addToolbarActions: function(toolbarAction){
+			var toolbar = document.querySelector('.shapejs-toolbar');
+			toolbar.appendChild(toolbarAction);
+		},
+
+		/*
+		
+		*/
+		createToolboxActions: function(){
+			var elStr;
+			if (dropdown) elStr = '<span>'+label+'<ul></ul></span>';
+			else elStr = '<li>'+label+'</li>';
+			return createHTMLElement(elStr);
+		},
+
+		/*
+		
+		*/
+		addToolboxActions: function(){
+
+		},
+
+		/*
+		
+		*/
+		addSubToolbarActions: function(toolbarAction){
+
 		}
 	}
 	
