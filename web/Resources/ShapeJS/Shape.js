@@ -15,11 +15,16 @@
 
 	/*
 	used to add/ovverride objB's property into the objA
+
+	false used to confirm if objA is actually trying to ovverride the properties
+
+	order matters here, because one could be a prototype object, which
+	affects all the plugins
 	*/
 	function extend(objA, objB){
 		var prop;
 		for (prop in objB){
-			if (objB.hasOwnProperty(prop)){
+			if (objB.hasOwnProperty(prop) && objA.hasOwnProperty(prop) === false){
 				objA[prop] = objB[prop];
 			};
 		}
@@ -111,6 +116,7 @@
 	//SO it can be instantiated from outside
 	window.ShapeJS = ShapeJS;
 	
+	//Holds all the valid plugins
 	ShapeJS.plugins = {};
 	
 	ShapeJS.prototype = {
@@ -140,8 +146,9 @@
 		- Init the Plugins after the core creation
 		*/
 		init: function(options, replaceEl){
-			this.options = extend(this.defaults, options);
 			var _this = this;
+			this.options = extend(options, this.defaults);
+
 			if (replaceEl && typeof replaceEl === "string"){
 				this.replaceEl = document.querySelector(replaceEl);
 				if (this.replaceEl.nodeName.toLowerCase() == "img"){
@@ -167,24 +174,24 @@
 		*/
 		initDOM: function(){
 			var _this = this;
-			var container = createHTMLElement('<div class="shapejs-container"></div>');
+			var container = this.container = createHTMLElement('<div class="shapejs-container"></div>');
 
-			var toolbar = createHTMLElement('<ul class="shapejs-toolbar"></ul>');
-			container.appendChild(toolbar);
+			this.toolbar = createHTMLElement('<ul class="shapejs-toolbar"></ul>');
+			container.appendChild(this.toolbar);
 
-			var toolbox = createHTMLElement('<div class="shapejs-toolbox"></div>');
-			container.appendChild(toolbox);
+			this.toolbox = createHTMLElement('<div class="shapejs-toolbox"></div>');
+			container.appendChild(this.toolbox);
 
-			var subToolbar = createHTMLElement('<ul class="shapejs-sub-toolbar"></ul>');
-			container.appendChild(subToolbar);
+			this.subToolbar = createHTMLElement('<ul class="shapejs-sub-toolbar"></ul>');
+			container.appendChild(this.subToolbar);
 
-			var canvasContainer = createHTMLElement('<div class="shapejs-canvas-container"></div>');
-			container.appendChild(canvasContainer);
+			this.canvasContainer = createHTMLElement('<div class="shapejs-canvas-container"></div>');
+			container.appendChild(this.canvasContainer);
 
 			this.canvasDOM = document.createElement('Canvas');
 			this.canvasDOM.width = this.options.canvas.width;
 			this.canvasDOM.height = this.options.canvas.height;
-			canvasContainer.appendChild(this.canvasDOM);
+			this.canvasContainer.appendChild(this.canvasDOM);
 			//canvas has to exist on page before fabric canvas object creation
 			this.replaceEl.parentNode.replaceChild(container, this.replaceEl);
 
@@ -221,11 +228,9 @@
 						this.canvas.setHeight(initObjects[i].getHeight());
 					}
 				}
-
 				this.canvas.add(initObjects[i]);
 			}
 			return this;
-
 		},
 
 		//==========================The plugin support==================================
@@ -247,20 +252,21 @@
 
 		/*
 		Instantiate the plugins synchronasly after putting them in an array
+		Async seems to run into issues where plugins load out of orders
 
 		Sets the shapejs object and the options in the plugin
 		*/
 		initPlugins: function(){
 			var _this = this;
 			var pluginFolder = this.options.pluginPath+'/';
-			var all_plugins_objs = extend(this.options.defaultPlugins, this.options.plugins);
-			var all_plugins_arr = Object.keys(all_plugins_objs);
+			this.options.plugins = extend(this.options.plugins, this.options.defaultPlugins);
+			var all_plugins_arr = Object.keys(this.options.plugins);
 
 			var index = 0;
 			function loadJS(index){
 				var name = all_plugins_arr[index];
 				loadJSFile(pluginFolder+name+"/"+name+'.js', function(){
-					ShapeJS.plugins[name](_this, all_plugins_objs[name]);
+					ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
 					if (index < all_plugins_arr.length - 1){
 						index++;
 						loadJS(index);
@@ -309,8 +315,7 @@
 		},
 
 		addToolbarActions: function(toolbarAction){
-			var toolbar = document.querySelector('.shapejs-toolbar');
-			toolbar.appendChild(toolbarAction);
+			this.toolbar.appendChild(toolbarAction);
 		},
 
 		/*
@@ -326,15 +331,15 @@
 		/*
 		
 		*/
-		addToolboxActions: function(){
-
+		addToolboxActions: function(toolboxActions){
+			this.toolbox.appendChild(toolboxActions);
 		},
 
 		/*
 		
 		*/
-		addSubToolbarActions: function(toolbarAction){
-
+		addSubToolbarActions: function(subToolbarAction){
+			this.subToolbar.appendChild(subToolbarAction);
 		}
 	}
 	
