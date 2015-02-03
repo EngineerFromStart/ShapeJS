@@ -20,14 +20,15 @@
 }
 
 .shapejs-toolbar > .shapejs-toolbar-actions{
-	padding: 5px 10px;
+	padding: 0px 10px;
 	display: inline-block;
 	cursor: pointer;
+	line-height: 28px;
 }
 
 .shapejs-toolbar > .shapejs-toolbar-actions:hover{
 	background-color: #777;
-	position: relative;
+	/*position: relative;*/
 }
 
 .shapejs-toolbar > .shapejs-toolbar-actions > ul{
@@ -37,11 +38,11 @@
 	border-top: 0px;
 	position: absolute;
 	top: 28px;
-	left: 0px;
+	/*left: 0px;*/
 	display: none;
 	z-index: 9999999;
 	min-height: 10px;
-	min-width: 50px;
+	/*min-width: 50px;*/
 	list-style: none;
 	padding: 0px;
 	margin: 0px;
@@ -51,8 +52,17 @@
 	display: block;
 }
 
+.shapejs-toolbar > .shapejs-toolbar-actions > ul:hover{
+	display: block;
+}
+
 .shapejs-toolbar > .shapejs-toolbar-actions:hover > ul > li{
 	color: #444;
+	padding: 0px 17px;
+}
+
+.shapejs-toolbar > .shapejs-toolbar-actions:hover > ul > li:hover{
+	background-color: #C7C7C7;
 }
 
 .shapejs-toolbox{
@@ -67,4 +77,9 @@
 	position: absolute;;
 	left: 0px;
 	top: 28px;
+}
+
+.shapejs-short-cut{
+	margin-left: 30px;
+	float: right;
 }

@@ -100,6 +100,27 @@
 		return scriptFullPath.substring(0,scriptFullPath.lastIndexOf("/")+1);
 	}();
 
+	/*
+	Creating a Generic Button
+	*/
+	function Button(element){
+		this.element = element;
+	}
+
+	Button.prototype = {
+		addEventListener: function(eventName, callback) {
+		    var el = this.element;
+		    if (el.addEventListener){
+		    	el.addEventListener(eventName, callback);
+		    } else if (el.attachEvent) {
+		    	el.attachEvent('on' + eventName, callback);
+		    }
+    	},
+    	disable: function(value){
+    		this.element.disabled = (value) ? true : false
+    	}
+	}
+
 	//==============================================================================
 	//==========================The core library and DOM============================
 	//==============================================================================
@@ -267,6 +288,7 @@
 				var name = all_plugins_arr[index];
 				loadJSFile(pluginFolder+name+"/"+name+'.js', function(){
 					ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
+
 					if (index < all_plugins_arr.length - 1){
 						index++;
 						loadJS(index);
@@ -302,16 +324,25 @@
 
 		//============================The DOM support===================================
 		//==============================================================================
+		
+		createShapeJSButton: function(element){
+			return new Button(element);
+		},
+
+		createHTMLElement: function(str){
+			return createHTMLElement(str);
+		},
+
 		/*
 		
 		*/
 		createToolbarActions: function(label, dropdown){
-			var elStr;
-			if (dropdown) elStr = '<li class="shapejs-toolbar-actions">'+label+'\
-				<ul>'+ dropdown+'</ul>\
-				</li>';
-			else elStr = '<li class="shapejs-toolbar-actions">'+label+'</li>';
-			return createHTMLElement(elStr);
+			var elStr = '<li class="shapejs-toolbar-actions">'+label+'</li>';
+			var action = createHTMLElement(elStr);
+			if (dropdown) {
+				action.appendChild(dropdown);
+			}
+			return action;
 		},
 
 		addToolbarActions: function(toolbarAction){
@@ -342,5 +373,5 @@
 			this.subToolbar.appendChild(subToolbarAction);
 		}
 	}
-	
+
 }())
