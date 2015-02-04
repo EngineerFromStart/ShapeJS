@@ -14,6 +14,13 @@
 	//==============================================================================
 
 	/*
+
+	*/
+	function $(query){
+		return document.querySelector(query);
+	};
+
+	/*
 	used to add/ovverride objB's property into the objA
 
 	false used to confirm if objA is actually trying to ovverride the properties
@@ -37,7 +44,7 @@
 	*/
 	function createHTMLElement(str){
 		var element = document.createElement('div');
-		if (str.indexOf("<") != -1 && str.indexOf(">") != -1 && str.indexOf("/") != -1){
+		if (str.indexOf("<") != -1 && str.indexOf(">") != -1){
 			element.innerHTML = str;
 		}else{
 			return document.createElement('str');
@@ -148,13 +155,21 @@
 				height: 150,
 				rescale: 'auto'
 			},
+			shapejsPath: scriptJSPath,
 			pluginPath:scriptJSPath+'plugins',
 			debug: false,
 			defaultPlugins: {
-				'base':{
-					'ok':'ok'
+				'base': {
+
+				},
+				'SCCP':{//Select , Cut, Copy, Paste
+					
+				},
+				'annotation':{
+
 				}
 			},
+			'font-awesome-path':'default'
 		},
 
 		
@@ -200,7 +215,7 @@
 			this.toolbar = createHTMLElement('<ul class="shapejs-toolbar"></ul>');
 			container.appendChild(this.toolbar);
 
-			this.toolbox = createHTMLElement('<div class="shapejs-toolbox"></div>');
+			this.toolbox = createHTMLElement('<ul class="shapejs-toolbox"></ul>');
 			container.appendChild(this.toolbox);
 
 			this.subToolbar = createHTMLElement('<ul class="shapejs-sub-toolbar"></ul>');
@@ -254,8 +269,10 @@
 			return this;
 		},
 
+		//==============================================================================
 		//==========================The plugin support==================================
 		//==============================================================================
+		
 		/*
 
 		*/
@@ -322,9 +339,14 @@
 			return new plugin();//causes the function to become a object type
 		},
 
+		//==============================================================================
 		//============================The DOM support===================================
 		//==============================================================================
 		
+		getEl: function(query){
+			return $(query)
+		},
+
 		createShapeJSButton: function(element){
 			return new Button(element);
 		},
@@ -337,7 +359,7 @@
 		
 		*/
 		createToolbarActions: function(label, dropdown){
-			var elStr = '<li class="shapejs-toolbar-actions">'+label+'</li>';
+			var elStr = '<li>'+label+'</li>';
 			var action = createHTMLElement(elStr);
 			if (dropdown) {
 				action.appendChild(dropdown);
@@ -352,11 +374,13 @@
 		/*
 		
 		*/
-		createToolboxActions: function(){
-			var elStr;
-			if (dropdown) elStr = '<span>'+label+'<ul></ul></span>';
-			else elStr = '<li>'+label+'</li>';
-			return createHTMLElement(elStr);
+		createToolboxActions: function(element, dropdown){
+			var action = document.createElement('li');
+			action.appendChild(element);
+			if (dropdown){
+				action.appendChild(dropdown);
+			}
+			return action;
 		},
 
 		/*

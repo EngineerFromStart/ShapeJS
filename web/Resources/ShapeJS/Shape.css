@@ -8,6 +8,15 @@
 
 .shapejs-container{
 	position: relative;
+	font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+
+
+
+.shapejs-container ul {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
 }
 
 .shapejs-toolbar{
@@ -19,19 +28,19 @@
 	margin: 0px;
 }
 
-.shapejs-toolbar > .shapejs-toolbar-actions{
+.shapejs-toolbar > li{
 	padding: 0px 10px;
 	display: inline-block;
 	cursor: pointer;
 	line-height: 28px;
 }
 
-.shapejs-toolbar > .shapejs-toolbar-actions:hover{
+.shapejs-toolbar > li:hover{
 	background-color: #777;
 	/*position: relative;*/
 }
 
-.shapejs-toolbar > .shapejs-toolbar-actions > ul{
+.shapejs-toolbar > li > ul{
 	padding: 5px 10px;
 	background-color: #eee;
 	border: 1px solid #aaa;
@@ -43,43 +52,119 @@
 	z-index: 9999999;
 	min-height: 10px;
 	/*min-width: 50px;*/
-	list-style: none;
-	padding: 0px;
-	margin: 0px;
 }
 
-.shapejs-toolbar > .shapejs-toolbar-actions:hover > ul{
+.shapejs-toolbar > li:hover > ul{
 	display: block;
 }
 
-.shapejs-toolbar > .shapejs-toolbar-actions > ul:hover{
+.shapejs-toolbar > li > ul:hover{
 	display: block;
 }
 
-.shapejs-toolbar > .shapejs-toolbar-actions:hover > ul > li{
+.shapejs-toolbar > li:hover > ul > li{
 	color: #444;
 	padding: 0px 17px;
 }
 
-.shapejs-toolbar > .shapejs-toolbar-actions:hover > ul > li:hover{
+.shapejs-toolbar > li:hover > ul > li:hover{
 	background-color: #C7C7C7;
 }
 
-.shapejs-toolbox{
 
+
+
+
+
+.shapejs-toolbox{
+	color: #3F3F3F;
+	padding: 4px !important;
+	margin: 5px 0px;
+	position: absolute;
+	border: 1px solid;
+	border-left: 0px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	z-index: 999999;
+	background-color: #eee;
+	text-align: center;
 }
+
+.shapejs-toolbox > li {
+	padding: 4px;
+	cursor: pointer;
+	border: 1px solid #EEE;
+	position: relative;
+}
+
+.shapejs-toolbox > li:hover {
+	border: 1px solid #ccc;
+}
+
+.shapejs-toolbox > li > ul {
+	padding: 5px 5px;
+	background-color: #EEE;
+	border: 1px solid #AAA;
+	position: absolute;
+	display: none;
+	z-index: 9999999;
+	min-height: 10px;
+	left: 100%;
+	top: 0px;
+	width: 80px;
+}
+
+.shapejs-toolbox > li > ul > li{
+	padding: 4px;
+	cursor: pointer;
+	border: 1px solid #EEE;
+	float: left;
+}
+
+.shapejs-toolbox > li > ul > li:hover{
+	border: 1px solid #ccc;
+}
+
+.shapejs-toolbox-active {
+	background-color: #B8B8B8;
+	border: 1px solid #949494;
+	margin: -1px;
+}
+
+
+
+
+
+
 
 .shapejs-sub-toolbar{
 
 }
 
 .shapejs-canvas-container{
-	position: absolute;;
+	position: absolute;
 	left: 0px;
 	top: 28px;
+	width: 100%;
+	background-color: #F5F5F5;
+	padding: 40px;
+}
+
+.canvas-container{
+	border: 1px solid #ccc;
 }
 
 .shapejs-short-cut{
 	margin-left: 30px;
 	float: right;
+}
+
+
+/*font-awesome css*/
+.fa-rotate-45 {
+    -webkit-transform: rotate(45deg) !important;
+    -moz-transform: rotate(45deg) !important;
+    -ms-transform: rotate(45deg) !important;
+    -o-transform: rotate(45deg) !important;
+    transform: rotate(45deg) !important;
 }
