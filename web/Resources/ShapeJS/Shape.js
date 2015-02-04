@@ -5,6 +5,15 @@
  * ShapeJS may be freely distributed under the MIT license
  */
 
+
+ /*
+	- instantiates ShapeJS object (contructure function)
+	- new objects combines the defaults and options supplied
+	- replaces element (or image) with its own DOM
+	- inits the fabric objects and canvas
+	- inits the plugins (from options and defaults) by loading them via JS
+ */
+
 //wrapping braces is a coding convention
 (function(){//changes the scope of the ShapeJS;
 	'use strict'; // forces you to instantiate variables by using 'var'
@@ -160,6 +169,9 @@
 			debug: false,
 			defaultPlugins: {
 				'base': {
+					//'path':"../bla.js" 
+				},
+				'history':{
 
 				},
 				'SCCP':{//Select , Cut, Copy, Paste
@@ -290,7 +302,8 @@
 
 		/*
 		Instantiate the plugins synchronasly after putting them in an array
-		Async seems to run into issues where plugins load out of orders
+		*Async seems to run into issues where plugins load out of orders
+		*folder, file and plugins object names must match, unless 'path' is defined
 
 		Sets the shapejs object and the options in the plugin
 		*/
@@ -298,12 +311,19 @@
 			var _this = this;
 			var pluginFolder = this.options.pluginPath+'/';
 			this.options.plugins = extend(this.options.plugins, this.options.defaultPlugins);
-			var all_plugins_arr = Object.keys(this.options.plugins);
+			var all_plugins_arr = Object.keys(this.options.plugins);//puts the keys into an array
 
 			var index = 0;
 			function loadJS(index){
 				var name = all_plugins_arr[index];
-				loadJSFile(pluginFolder+name+"/"+name+'.js', function(){
+				var pathToPlugin = pluginFolder+name+"/"+name+'.js';
+				if (_this.options.plugins[name].path){
+					pathToPlugin = _this.options.plugins[name].path;
+				}
+				//load js file, once file is loaded, instatiate it and move to next one
+				loadJSFile(pathToPlugin, function(){
+					//all_plugins_arr[index] = new _this.Plugin(ShapeJS.plugins[name]);
+					//all_plugins_arr[index].init(_this,  _this.options.plugins[name]);
 					ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
 
 					if (index < all_plugins_arr.length - 1){
@@ -314,27 +334,17 @@
 			}
 
 			loadJS(index);
-
 			return this;
 		},
 		
 		/*
 		The Plugin Object that the plugins must instatiate for increase functionality
 		*/
-		Plugin: function(options){
+		Plugin: function(callback){
 			function plugin(){
-				return this.init();
 			};
 			plugin.prototype = {
-				defaults: {
-
-				},
-				options:{
-
-				},
-				init: function(){
-					this.options = extend(this.defaults, options);
-				}
+				init: callback
 			}
 			return new plugin();//causes the function to become a object type
 		},
@@ -342,15 +352,26 @@
 		//==============================================================================
 		//============================The DOM support===================================
 		//==============================================================================
-		
+		/*
+		*/
+		createElement: function(str){
+			return document.createElement(str);
+		},
+
+		/*
+		*/
 		getEl: function(query){
 			return $(query)
 		},
 
+		/*
+		*/
 		createShapeJSButton: function(element){
 			return new Button(element);
 		},
 
+		/*
+		*/
 		createHTMLElement: function(str){
 			return createHTMLElement(str);
 		},

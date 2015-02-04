@@ -6,11 +6,12 @@
  * http://cssreset.com
  */
 
+/* Main container */
 .shapejs-container{
 	position: relative;
 	font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+	-webkit-user-select: none;
 }
-
 
 
 .shapejs-container ul {
@@ -18,6 +19,8 @@
 	padding: 0px;
 	margin: 0px;
 }
+
+/*Toolbar*/
 
 .shapejs-toolbar{
 	height: 28px;
@@ -71,15 +74,18 @@
 	background-color: #C7C7C7;
 }
 
+.shapejs-toolbar .shapejs-short-cut{
+	margin-left: 30px;
+	float: right;
+}
 
-
-
+/*Toolbox*/
 
 
 .shapejs-toolbox{
 	color: #3F3F3F;
 	padding: 4px !important;
-	margin: 5px 0px;
+	margin: 5px 0px !important;
 	position: absolute;
 	border: 1px solid;
 	border-left: 0px;
@@ -134,17 +140,24 @@
 
 
 
-
+/*Sub Toolbar*/
 
 
 .shapejs-sub-toolbar{
-
+	padding-left: 50px !important;
+	background-color: #f5f5f5;
+	height: 28px;
+	border-bottom: 1px solid #ccc;
 }
 
+.shapejs-sub-toolbar > * {
+	line-height: 30px;
+}
+
+
+/* canvas */
+
 .shapejs-canvas-container{
-	position: absolute;
-	left: 0px;
-	top: 28px;
 	width: 100%;
 	background-color: #F5F5F5;
 	padding: 40px;
@@ -154,10 +167,7 @@
 	border: 1px solid #ccc;
 }
 
-.shapejs-short-cut{
-	margin-left: 30px;
-	float: right;
-}
+
 
 
 /*font-awesome css*/

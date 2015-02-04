@@ -1,60 +1,13 @@
 (function(){
-	var canvas;
+	'use strict'
+	/* Helper functions */
+
 	/*
-		Helper functions
+		copy the objects into an array to be pasted later
 	*/
-	var copiedObjects = [];
-	function onKeyDownHandler(event) {
-	    //event.preventDefault();
-	    var key;
-	    if(window.event){
-	        key = window.event.keyCode;
-	    }
-	    else{
-	        key = event.keyCode;
-	    }
-	    
-	    switch(key){
-	        // Copy (Ctrl+C)
-	        case 67: // Ctrl+C
-	            if(ableToShortcut()){
-	                if(event.ctrlKey){
-	                    event.preventDefault();
-	                    copy();
-	                }
-	            }
-	            break;
-	        // Paste (Ctrl+V)
-	        case 86: // Ctrl+V
-	            if(ableToShortcut()){
-	                if(event.ctrlKey){
-	                    event.preventDefault();
-	                    paste();
-	                }
-	            }
-	            break;            
-	        default:
-	            // TODO
-	            break;
-	    }
-	}
-
-	function ableToShortcut(){
-	    /*
-	    TODO check all cases for this
-	    
-	    if($("textarea").is(":focus")){
-	        return false;
-	    }
-	    if($(":text").is(":focus")){
-	        return false;
-	    }
-	    */
-	    return true;
-	}
-
-	function copy(){
-		copiedObjects = new Array();
+	function copy(shapejs){
+		var canvas = shapejs.canvas;
+		var copiedObjects = shapejs.copiedObjects = new Array();
 	    if(canvas.getActiveGroup()){
 	        for (var i in canvas.getActiveGroup().objects){
 	        	copiedObjects.push(canvas.getActiveGroup().objects[i]);
@@ -64,84 +17,86 @@
 	    }
 	}
 
-	function paste(){
+	/*
+		clone and add the coppied objects onto the canvas
+	*/
+	function paste(shapejs){
+		var canvas = shapejs.canvas;
+		var copiedObjects = shapejs.copiedObjects;
 	    if(copiedObjects.length > 0){
 	        for(var i in copiedObjects){
-	        	var object = copiedObjects[i].clone();
+	        	var object;
+	        	//Objects became async since 1.2.2
+	        	if (fabric.util.getKlass(copiedObjects[i].type).async) {
+					copiedObjects[i].clone(function (clone) {
+						clone.set({
+							left: clone.getLeft()+10,
+							top: clone.getTop()+10
+						});
+						object = clone;
+					});
+				}else{
+					object = copiedObjects[i].clone();
+				}
 	        	//fabric.util.object.clone()
 				object.set('top',object.getTop()+10);
 				object.set('left',object.getLeft()+10);
 	        	canvas.add(object);
 	        }                    
 	    }
-	    canvas.renderAll();    
+	    canvas.renderAll();  
 	}
 
 	/*
-		
+		Adds the buttons for proper copy and paste
 	*/
 	ShapeJS.plugins['SCCP'] = function(shapejs, options){
+		shapejs.copiedObjects = [];
+		var canvas = shapejs.canvas;
 
-		canvas = shapejs.canvas;
+		//Keys Handler for copy and paste
+		function onKeyDownHandler(event) {
+		    var key;
+		    if(window.event){
+		        key = window.event.keyCode;
+		    }else{
+		        key = event.keyCode;
+		    }
+		    
+		    if (event.ctrlKey){
+
+				console.log('why');
+			    switch(key){
+			        case 67: // Copy Ctrl+C
+	                    event.preventDefault();
+	                    copy(shapejs);
+			            break;
+			        case 86: // Paste Ctrl+V
+	                    event.preventDefault();
+	                    paste(shapejs);		
+			            break;            
+			        default:
+			            // TODO
+			            break;
+			    }
+			}
+		}
 		document.onkeydown = onKeyDownHandler;
-		/*
-
-		*/
-
-		var file = document.createElement('ul');
-
-		var clearBtn = document.createElement('li');
-		clearBtn.innerHTML = "Clear";
-		shapejs.createShapeJSButton(clearBtn);
-		clearBtn.addEventListener('click', function(){
-			canvas.clear().renderAll();
-		})
-		file.appendChild(clearBtn);
-
-
-		var importBtn = document.createElement('li');
-		importBtn.innerHTML = "Import";
-		shapejs.createShapeJSButton(importBtn);
-		file.appendChild(importBtn);
-
 		
-		var exportBtn = document.createElement('li');
-		exportBtn.innerHTML = "Export PNG";
-		shapejs.createShapeJSButton(exportBtn);
-		if (!fabric.Canvas.supports('toDataURL')) {
-      		exportBtn.disable(true);
-    	}
-		exportBtn.addEventListener('click', function(){
-			window.open(canvas.toDataURL('png'));
-			// window.open('data:image/svg+xml;utf8,'+encodeURIComponent(canvas.toSVG())); //SVG
-		});
-		file.appendChild(exportBtn);
-
-		shapejs.addToolbarActions(shapejs.createToolbarActions('File', file));
-
-
-
-		/*
-			EDIT Sections
-		*/
-
-		var edit = document.createElement('ul');
-
+		/* EDIT Sections, button handlers for copy and paste */
 		var copyBtn = shapejs.createHTMLElement('<li>Copy<span class="shapejs-short-cut">Ctrl+C</span></li>');
 		shapejs.createShapeJSButton(copyBtn);
 		copyBtn.addEventListener('click', function(){
-			copy();
+			copy(shapejs);
 		})
-		edit.appendChild(copyBtn);
+		shapejs.toolbar.editActions.appendChild(copyBtn);
 
 
 		var pasteBtn = shapejs.createHTMLElement('<li>Paste<span class="shapejs-short-cut">Ctrl+V</span></li>');
 		shapejs.createShapeJSButton(pasteBtn);
 		pasteBtn.addEventListener('click', function(){
-			paste();
+			paste(shapejs);
 		})
-		edit.appendChild(pasteBtn);
-
-		shapejs.addToolbarActions(shapejs.createToolbarActions('Edit', edit));
+		shapejs.toolbar.editActions.appendChild(pasteBtn);
 	}
 }());
