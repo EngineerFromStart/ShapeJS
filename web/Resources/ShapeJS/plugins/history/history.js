@@ -10,6 +10,7 @@
 		var canvas = shapejs.canvas;
 
 		shapejs.changingHistory = true;
+		//undo only if you are in the middle of the stack
 		if (shapejs.historyIndex > 0){
 			shapejs.historyIndex -= 1;
 			var canvasJSON = shapejs.historyStack[shapejs.historyIndex];
@@ -24,6 +25,7 @@
 		var canvas = shapejs.canvas;
 
 		shapejs.changingHistory = true;
+		//redo only if there are more items in stack
 		if (shapejs.historyIndex < shapejs.historyStack.length - 1){
 			shapejs.historyIndex += 1;
 			var canvasJSON = shapejs.historyStack[shapejs.historyIndex];
@@ -38,62 +40,55 @@
 	//unless its from undo/redo, else the stack will overflow
 	function getState(shapejs, options){
 		if (!shapejs.changingHistory){
+			//so the stack gets cleaned when changes are made after an undo
+			shapejs.historyStack = shapejs.historyStack.slice(0, shapejs.historyIndex+1);
+			
 			var canvasJSON = JSON.stringify(shapejs.canvas);
 			shapejs.historyStack.push(canvasJSON);
 			shapejs.historyIndex += 1;
 		}
 	}
 
-		
-
 	ShapeJS.plugins['history'] = function(shapejs, options){
 		var historyStack = shapejs.historyStack = [];
-		var historyIndex = shapejs.historyIndex = -1;
+		var historyIndex = shapejs.historyIndex = -1;//no indexed items yet
 
 		var changingHistory = shapejs.changingHistory = false;
 
 		var canvas = shapejs.canvas;
 
-		getState(shapejs)
+		getState(shapejs)//add the very first state
 
-		//key hanler for under/redo
-		function onKeyDownHandler(event) {
-		    //event.preventDefault();
-		    var key;
-		    if(window.event){
-		        key = window.event.keyCode;
-		    }else{
-		        key = event.keyCode;
-		    }
-		    
-		    if (event.ctrlKey){
-			    switch(key){
-			        case 90: // undo Ctrl+C
-	                    event.preventDefault();
-	                    undo(shapejs);
-			            break;
-			        case 89: // redo Ctrl+V
-	                    event.preventDefault();
-	                    redo(shapejs);		
-			            break;            
-			        default:
-			            // TODO
-			            break;
-			    }
+		var keyHandles = {
+			90: function(event){
+				if (event.ctrlKey){
+					event.preventDefault();
+					undo(shapejs);
+				}
+			},
+			89: function(event){
+				if (event.ctrlKey){
+					event.preventDefault();
+					redo(shapejs);
+				}
 			}
 		}
-		document.onkeydown = onKeyDownHandler;
+		//key hanler for under/redo
+		
+		shapejs.keyHandles = ShapeJS.util.extend(shapejs.keyHandles, keyHandles);
+		shapejs.onkeydown = shapejs.onKeyDownHandler;
 
-		//click handler for undo/redo
-		var undoBtn = shapejs.createHTMLElement('<li>Undo<span class="shapejs-short-cut">Ctrl+Z</span></li>');
-		shapejs.createShapeJSButton(undoBtn);
+		//click handler for undo
+		var undoBtn = ShapeJS.util.createHTMLElement('<li>Undo<span class="shapejs-short-cut">Ctrl+Z</span></li>');
+		ShapeJS.util.createButton(undoBtn);
 		undoBtn.addEventListener('click', function(){
 			undo(shapejs);
 		})
 		shapejs.toolbar.editActions.appendChild(undoBtn);
 
-		var redoBtn = shapejs.createHTMLElement('<li>Redo<span class="shapejs-short-cut">Ctrl+Y</span></li>');
-		shapejs.createShapeJSButton(redoBtn);
+		//click handler for undo
+		var redoBtn = ShapeJS.util.createHTMLElement('<li>Redo<span class="shapejs-short-cut">Ctrl+Y</span></li>');
+		ShapeJS.util.createButton(redoBtn);
 		redoBtn.addEventListener('click', function(){
 			redo(shapejs);
 		})

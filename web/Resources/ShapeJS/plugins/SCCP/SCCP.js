@@ -3,6 +3,26 @@
 	/* Helper functions */
 
 	/*
+		cut the objects into an array to be pasted later
+	*/
+	function cut(shapejs){
+		var canvas = shapejs.canvas;
+		var copiedObjects = shapejs.copiedObjects = new Array();
+
+	    if(canvas.getActiveGroup()){
+        	canvas.getActiveGroup().forEachObject(function(o){
+        		copiedObjects.push(o);
+        		canvas.remove(o) 
+        	});
+  			canvas.discardActiveGroup().renderAll();
+	    }else if(canvas.getActiveObject()){
+        	copiedObjects.push(canvas.getActiveObject());
+        	canvas.remove(canvas.getActiveObject());
+	    }
+	    canvas.renderAll();
+	}
+
+	/*
 		copy the objects into an array to be pasted later
 	*/
 	function copy(shapejs){
@@ -37,10 +57,10 @@
 					});
 				}else{
 					object = copiedObjects[i].clone();
+					object.set('top',object.getTop()+10);
+					object.set('left',object.getLeft()+10);
 				}
 	        	//fabric.util.object.clone()
-				object.set('top',object.getTop()+10);
-				object.set('left',object.getLeft()+10);
 	        	canvas.add(object);
 	        }                    
 	    }
@@ -54,46 +74,50 @@
 		shapejs.copiedObjects = [];
 		var canvas = shapejs.canvas;
 
-		//Keys Handler for copy and paste
-		function onKeyDownHandler(event) {
-		    var key;
-		    if(window.event){
-		        key = window.event.keyCode;
-		    }else{
-		        key = event.keyCode;
-		    }
-		    
-		    if (event.ctrlKey){
-
-				console.log('why');
-			    switch(key){
-			        case 67: // Copy Ctrl+C
-	                    event.preventDefault();
-	                    copy(shapejs);
-			            break;
-			        case 86: // Paste Ctrl+V
-	                    event.preventDefault();
-	                    paste(shapejs);		
-			            break;            
-			        default:
-			            // TODO
-			            break;
-			    }
+		//document.onkeydown = onKeyDownHandler;
+		var keyHandles = {
+			88: function(event){
+				if (event.ctrlKey){
+					event.preventDefault();
+					cut(shapejs);
+				}
+			},
+			67: function(event){ // Copy Ctrl+C
+				if (event.ctrlKey){
+					event.preventDefault();
+					copy(shapejs);
+				}
+			},
+			86: function(event){ // Paste Ctrl+V
+				if (event.ctrlKey){
+					event.preventDefault();
+					paste(shapejs);
+				}
 			}
 		}
-		document.onkeydown = onKeyDownHandler;
+		//key hanler for under/redo
+		
+		shapejs.keyHandles = ShapeJS.util.extend(shapejs.keyHandles, keyHandles);
+		document.onkeydown = shapejs.onKeyDownHandler;
 		
 		/* EDIT Sections, button handlers for copy and paste */
-		var copyBtn = shapejs.createHTMLElement('<li>Copy<span class="shapejs-short-cut">Ctrl+C</span></li>');
-		shapejs.createShapeJSButton(copyBtn);
+		var cutBtn = ShapeJS.util.createHTMLElement('<li>Cut<span class="shapejs-short-cut">Ctrl+C</span></li>');
+		ShapeJS.util.createButton(cutBtn);
+		cutBtn.addEventListener('click', function(){
+			cut(shapejs);
+		})
+		shapejs.toolbar.editActions.appendChild(cutBtn);
+
+		var copyBtn = ShapeJS.util.createHTMLElement('<li>Copy<span class="shapejs-short-cut">Ctrl+C</span></li>');
+		ShapeJS.util.createButton(copyBtn);
 		copyBtn.addEventListener('click', function(){
 			copy(shapejs);
 		})
 		shapejs.toolbar.editActions.appendChild(copyBtn);
 
 
-		var pasteBtn = shapejs.createHTMLElement('<li>Paste<span class="shapejs-short-cut">Ctrl+V</span></li>');
-		shapejs.createShapeJSButton(pasteBtn);
+		var pasteBtn = ShapeJS.util.createHTMLElement('<li>Paste<span class="shapejs-short-cut">Ctrl+V</span></li>');
+		ShapeJS.util.createButton(pasteBtn);
 		pasteBtn.addEventListener('click', function(){
 			paste(shapejs);
 		})

@@ -23,45 +23,6 @@
 	//==============================================================================
 
 	/*
-
-	*/
-	function $(query){
-		return document.querySelector(query);
-	};
-
-	/*
-	used to add/ovverride objB's property into the objA
-
-	false used to confirm if objA is actually trying to ovverride the properties
-
-	order matters here, because one could be a prototype object, which
-	affects all the plugins
-	*/
-	function extend(objA, objB){
-		var prop;
-		for (prop in objB){
-			if (objB.hasOwnProperty(prop) && objA.hasOwnProperty(prop) === false){
-				objA[prop] = objB[prop];
-			};
-		}
-		return objA;
-	}
-
-	/*
-	used to create a element using a string and return it
-	//TODO
-	*/
-	function createHTMLElement(str){
-		var element = document.createElement('div');
-		if (str.indexOf("<") != -1 && str.indexOf(">") != -1){
-			element.innerHTML = str;
-		}else{
-			return document.createElement('str');
-		}
-		return element.firstChild;
-	}
-
-	/*
 	load a js or css file dynamically and call a callback
 	*/
 	function loadJSFile(filePath, callback){
@@ -89,22 +50,6 @@
 	}
 
 	/*
-	Creates coordinates for the objects added to the canvas on object init
-
-	takes a limit so object doesnt go off;
-	*/
-	function getCoords(offset, limit){
-		var off = offset || 50;
-		var lim = limit || off/2;
-		var left = Math.floor(Math.random() * off) - lim;
-		var top = Math.floor(Math.random() * off) - lim;
-		return {
-			left: (left <  0) ? 0: left,
-			top: (top < 0 )? 0 : top
-		}
-	}
-
-	/*
 	Helper methods to get current script paths and folder
 	*/
 	var scriptFullPath = function(){
@@ -112,30 +57,10 @@
 		var index = scripts.length - 1;
 		return scripts[index].src;
 	}();
+
 	var scriptJSPath = function(){
 		return scriptFullPath.substring(0,scriptFullPath.lastIndexOf("/")+1);
 	}();
-
-	/*
-	Creating a Generic Button
-	*/
-	function Button(element){
-		this.element = element;
-	}
-
-	Button.prototype = {
-		addEventListener: function(eventName, callback) {
-		    var el = this.element;
-		    if (el.addEventListener){
-		    	el.addEventListener(eventName, callback);
-		    } else if (el.attachEvent) {
-		    	el.attachEvent('on' + eventName, callback);
-		    }
-    	},
-    	disable: function(value){
-    		this.element.disabled = (value) ? true : false
-    	}
-	}
 
 	//==============================================================================
 	//==========================The core library and DOM============================
@@ -153,9 +78,10 @@
 	//SO it can be instantiated from outside
 	window.ShapeJS = ShapeJS;
 	
-	//Holds all the valid plugins
+	//Holds all the valid plugins, exists without instantiation
 	ShapeJS.plugins = {};
 	
+	//prototype only instantiated when new is called.
 	ShapeJS.prototype = {
 		defaults: {
 			initObjects: [],
@@ -177,6 +103,9 @@
 				'SCCP':{//Select , Cut, Copy, Paste
 					
 				},
+				'crop':{
+
+				},
 				'annotation':{
 
 				}
@@ -195,7 +124,7 @@
 		*/
 		init: function(options, replaceEl){
 			var _this = this;
-			this.options = extend(options, this.defaults);
+			this.options = ShapeJS.util.extend(options, this.defaults);
 
 			if (replaceEl && typeof replaceEl === "string"){
 				this.replaceEl = document.querySelector(replaceEl);
@@ -222,18 +151,18 @@
 		*/
 		initDOM: function(){
 			var _this = this;
-			var container = this.container = createHTMLElement('<div class="shapejs-container"></div>');
+			var container = this.container = ShapeJS.util.createHTMLElement('<div class="shapejs-container" tabindex="1"></div>');
 
-			this.toolbar = createHTMLElement('<ul class="shapejs-toolbar"></ul>');
+			this.toolbar = ShapeJS.util.createHTMLElement('<ul class="shapejs-toolbar"></ul>');
 			container.appendChild(this.toolbar);
 
-			this.toolbox = createHTMLElement('<ul class="shapejs-toolbox"></ul>');
+			this.toolbox = ShapeJS.util.createHTMLElement('<ul class="shapejs-toolbox"></ul>');
 			container.appendChild(this.toolbox);
 
-			this.subToolbar = createHTMLElement('<ul class="shapejs-sub-toolbar"></ul>');
+			this.subToolbar = ShapeJS.util.createHTMLElement('<ul class="shapejs-sub-toolbar"></ul>');
 			container.appendChild(this.subToolbar);
 
-			this.canvasContainer = createHTMLElement('<div class="shapejs-canvas-container"></div>');
+			this.canvasContainer = ShapeJS.util.createHTMLElement('<div class="shapejs-canvas-container"></div>');
 			container.appendChild(this.canvasContainer);
 
 			this.canvasDOM = document.createElement('Canvas');
@@ -261,7 +190,7 @@
 
 			var initObjects = this.options.initObjects;
 			for (var i = 0; i < initObjects.length; i++){
-				var coords = getCoords(this.canvas.width, initObjects[i].getWidth());
+				var coords = ShapeJS.util.getCoords(this.canvas.width, initObjects[i].getWidth());
 				initObjects[i].set({
 					left: coords.left,
 					top: coords.top
@@ -282,7 +211,7 @@
 		},
 
 		//==============================================================================
-		//==========================The plugin support==================================
+		//==========================The plugin specific support==================================
 		//==============================================================================
 		
 		/*
@@ -310,7 +239,7 @@
 		initPlugins: function(){
 			var _this = this;
 			var pluginFolder = this.options.pluginPath+'/';
-			this.options.plugins = extend(this.options.plugins, this.options.defaultPlugins);
+			this.options.plugins = ShapeJS.util.extend(this.options.plugins, this.options.defaultPlugins);
 			var all_plugins_arr = Object.keys(this.options.plugins);//puts the keys into an array
 
 			var index = 0;
@@ -322,7 +251,7 @@
 				}
 				//load js file, once file is loaded, instatiate it and move to next one
 				loadJSFile(pathToPlugin, function(){
-					//all_plugins_arr[index] = new _this.Plugin(ShapeJS.plugins[name]);
+					//all_plugins_arr[index] = new _this.Plugin(name);
 					//all_plugins_arr[index].init(_this,  _this.options.plugins[name]);
 					ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
 
@@ -336,52 +265,17 @@
 			loadJS(index);
 			return this;
 		},
+
+		//==============================================================================
+		//======================ShapeJS DOM Specific support============================
+		//==============================================================================
 		
-		/*
-		The Plugin Object that the plugins must instatiate for increase functionality
-		*/
-		Plugin: function(callback){
-			function plugin(){
-			};
-			plugin.prototype = {
-				init: callback
-			}
-			return new plugin();//causes the function to become a object type
-		},
-
-		//==============================================================================
-		//============================The DOM support===================================
-		//==============================================================================
-		/*
-		*/
-		createElement: function(str){
-			return document.createElement(str);
-		},
-
-		/*
-		*/
-		getEl: function(query){
-			return $(query)
-		},
-
-		/*
-		*/
-		createShapeJSButton: function(element){
-			return new Button(element);
-		},
-
-		/*
-		*/
-		createHTMLElement: function(str){
-			return createHTMLElement(str);
-		},
-
 		/*
 		
 		*/
 		createToolbarActions: function(label, dropdown){
 			var elStr = '<li>'+label+'</li>';
-			var action = createHTMLElement(elStr);
+			var action = ShapeJS.util.createHTMLElement(elStr);
 			if (dropdown) {
 				action.appendChild(dropdown);
 			}
@@ -416,7 +310,109 @@
 		*/
 		addSubToolbarActions: function(subToolbarAction){
 			this.subToolbar.appendChild(subToolbarAction);
+		},
+
+		clearSubToonbarActions: function(){
+			this.subToolbar.innerHTML = "";
 		}
 	}
 
+	/*
+		The Plugin Object that the plugins must instatiate for increase functionality
+	*/
+	ShapeJS.Plugin = function(name){
+		console.log(this);
+		this.name = name;
+	}
+
+	ShapeJS.Plugin.prototype = {
+		sayName: function(){
+			console.log(this.name);
+		}
+	};
+
+	ShapeJS.util = {
+			/*
+			used to add/ovverride objB's property into the objA
+
+			false used to confirm if objA is actually trying to ovverride the properties
+
+			order matters here, because one could be a prototype object, which
+			affects all the plugins
+			*/
+			extend: function extend(objA, objB){
+				var prop;
+				for (prop in objB){
+					if (objB.hasOwnProperty(prop) && objA.hasOwnProperty(prop) === false){
+						objA[prop] = objB[prop];
+					};
+				}
+				return objA;
+			},
+
+			/*
+			*/
+			getEl: function(query){
+				return document.querySelector(query);
+			},
+
+			/*
+			*/
+			createElement: function(str){
+				return document.createElement(str);
+			},
+
+			/*
+			*/
+			createButton: function(element){
+				function Button(element){
+					this.element = element;
+				}
+
+				Button.prototype = {
+					addEventListener: function(eventName, callback) {
+					    var el = this.element;
+					    if (el.addEventListener){
+					    	el.addEventListener(eventName, callback);
+					    } else if (el.attachEvent) {
+					    	el.attachEvent('on' + eventName, callback);
+					    }
+			    	},
+			    	disable: function(value){
+			    		this.element.disabled = (value) ? true : false
+			    	}
+				}
+				return new Button(element);
+			},
+
+			/*
+				used to create a element using a string and return it
+				//TODO
+			*/
+			createHTMLElement: function(str){
+				var element = document.createElement('div');
+				if (str.indexOf("<") != -1 && str.indexOf(">") != -1){
+					element.innerHTML = str;
+				}else{
+					return document.createElement('str');
+				}
+				return element.firstChild;
+			},
+
+			/*
+				Creates coordinates for the objects added to the canvas on object init
+
+				takes a limit so object doesnt go off;
+			*/
+			getCoords: function(offset, limit){
+				var off = offset || 50;
+				var lim = limit || off/2;
+				var left = Math.floor(Math.random() * off) - lim;
+				var top = Math.floor(Math.random() * off) - lim;
+				return {
+					left: (left <  0) ? 0: left,
+					top: (top < 0 )? 0 : top
+				}
+			}
+		}
 }())

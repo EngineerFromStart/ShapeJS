@@ -7,7 +7,9 @@
 		var options = shapejs.options;
 		var canvas = shapejs.canvas;
 
-		//Load font-awesome library from the path set
+		/*
+			Load font-awesome library from the path set
+		*/
 		var fontLib = options['font-awesome-path'];
 		var link = document.createElement('link');
 		link.rel = "stylesheet"
@@ -16,8 +18,11 @@
 		}else{
 			link.href = options['font-awesome-path'];
 		}
-		shapejs.getEl('head').appendChild(link);
+		ShapeJS.util.getEl('head').appendChild(link);
 
+		/*
+			add basic actions for the canvas
+		*/
 		/* Create File Action */
 		var file = shapejs.toolbar.fileActions = document.createElement('ul');
 		shapejs.addToolbarActions(shapejs.createToolbarActions('File', file));
@@ -27,8 +32,8 @@
 		shapejs.addToolbarActions(shapejs.createToolbarActions('Edit', edit));
 
 		/* Base actions for every canvas*/
-		var clearBtn = shapejs.createHTMLElement('<li>Clear Canvas</li>');
-		shapejs.createShapeJSButton(clearBtn);
+		var clearBtn = ShapeJS.util.createHTMLElement('<li>Clear Canvas</li>');
+		ShapeJS.util.createButton(clearBtn);
 		clearBtn.addEventListener('click', function(){
 			canvas.clear().renderAll();
 		})
@@ -36,12 +41,12 @@
 
 		file.appendChild(document.createElement('hr'));
 
-		var importBtn = shapejs.createHTMLElement('<li>Import</li>');
-		shapejs.createShapeJSButton(importBtn);
+		var importBtn = ShapeJS.util.createHTMLElement('<li>Import</li>');
+		ShapeJS.util.createButton(importBtn);
 		file.appendChild(importBtn);
 		
-		var exportBtn = shapejs.createHTMLElement('<li>Export PNG</li>');
-		shapejs.createShapeJSButton(exportBtn);
+		var exportBtn = ShapeJS.util.createHTMLElement('<li>Export PNG</li>');
+		ShapeJS.util.createButton(exportBtn);
 		if (!fabric.Canvas.supports('toDataURL')) {
       		exportBtn.disable(true);
     	}
@@ -51,9 +56,34 @@
 		});
 		file.appendChild(exportBtn);
 
-		//add color input to toolbox
+
+		/*
+			Allow key handler features on the shapejs object in focus
+		*/
+		shapejs.keyHandles = {
+
+		}
+
+		shapejs.onKeyDownHandler = function(event){
+			var handles = shapejs.keyHandles;
+			var key;
+		    if(window.event){
+		        key = window.event.keyCode;
+		    }else{
+		        key = event.keyCode;
+		    }
+			if (handles.hasOwnProperty(key)){
+				handles[key](event);
+			}else{
+
+			}
+		}
+
+		/*
+			add color input to toolbox
+		*/
 		shapejs.toolbox.colorInput = '<input style="width:25px" type="color" value="#000000">';
-		shapejs.toolbox.colorInput = shapejs.createHTMLElement(shapejs.toolbox.colorInput);
+		shapejs.toolbox.colorInput = ShapeJS.util.createHTMLElement(shapejs.toolbox.colorInput);
 		var primaryColor = shapejs.createToolboxActions(shapejs.toolbox.colorInput);
 		shapejs.addToolboxActions(primaryColor);
 	}
