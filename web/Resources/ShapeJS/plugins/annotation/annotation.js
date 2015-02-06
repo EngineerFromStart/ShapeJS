@@ -125,12 +125,11 @@
 		*/
 		function onActivateBrush(){
 			if (canvas.isDrawingMode){
-				brushBtn.classList.add('shapejs-toolbox-active');
-				shapejs.clearSubToonbarActions();
+				shapejs.clearSubToolbarActions();
 				setToolbar();
 			}else{
-				brushBtn.classList.remove('shapejs-toolbox-active');
-				shapejs.clearSubToonbarActions();
+				shapejs.clearSubToolbarActions();
+				brushDrop.style.display = 'none';
 			}
 		}
 
@@ -138,7 +137,7 @@
 			the Toolbar to set when button is invoked
 		*/
 		function setToolbar(){
-			var slider = document.createElement('span');
+			var slider = document.createElement('ul');
 			slider.innerHTML = "W ";
 			slider.appendChild(ShapeJS.util.createHTMLElement('<i class="fa fa-arrows-v"></i>'));
 			
@@ -156,7 +155,7 @@
 				canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
 				this.nextSibling.innerHTML = this.value;
 			};
-			shapejs.addSubToolbarActions(slider);
+			shapejs.addSubToolbarActions(slider, 'brushSlider');
 		}
 
 		/*
@@ -185,39 +184,29 @@
 		*/
 		var brushDrop = document.createElement('ul');
 		brushDrop.style.display = 'none';
-
-		var brushBtn = '<i class="fa fa-pencil"></i>';
-		brushBtn = ShapeJS.util.createHTMLElement(brushBtn);
-		brushBtn = shapejs.createToolboxActions(brushBtn);//creates an element wrapped in <li>	
-
-		var dropTimeout;
-
 		//add brushes to DD, Set their button handlers
 		for (var name in brushes){
 			brushDrop.appendChild(createDropDownButton(name));
 		}
-		
+
+		var brushBtn = '<i class="fa fa-pencil"></i>';
+		brushBtn = ShapeJS.util.createHTMLElement(brushBtn);
+		brushBtn = shapejs.createToolboxButton(brushBtn);
+
+
 		//set main buttons handlers
-		ShapeJS.util.createButton(brushBtn);
-
-		brushBtn.addEventListener('click', function(){
-			canvas.isDrawingMode = !canvas.isDrawingMode;
+		brushBtn.activate = function(){
+			canvas.isDrawingMode = true;
 			onActivateBrush();
-		});
+		};
 
-		/* Display the DD*/
-		brushBtn.addEventListener('mousedown', function(){
-			dropTimeout = setTimeout(function(){
-				brushDrop.style.display = 'block';
-			}, 400)
-		});
+		brushBtn.deactivate = function(){
+			canvas.isDrawingMode = false;
+			onActivateBrush();
+		}
 
-		brushBtn.addEventListener('mouseup', function(){
-			clearTimeout(dropTimeout);
-		});
-
-		var brush = shapejs.createToolboxActions(brushBtn, brushDrop);
-		shapejs.addToolboxActions(brush);
+		shapejs.addToolboxButton(brushBtn, 'brush');
+		brushBtn.addDropDown(brushDrop);
 
 		//==============================================================
 		//===============set other annotation properties=================

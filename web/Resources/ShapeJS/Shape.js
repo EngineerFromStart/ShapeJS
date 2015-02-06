@@ -23,33 +23,6 @@
 	//==============================================================================
 
 	/*
-	load a js or css file dynamically and call a callback
-	*/
-	function loadJSFile(filePath, callback){
-		var fileRef;
-		if (!filePath) throw "No file to load";
-		fileRef = document.createElement('script');
-		fileRef.type = 'text/javascript';
-		if (typeof callback === 'function'){
-			if(fileRef.readyState) {  //IE
-				script.onreadystatechange = function() {
-					if ( fileRef.readyState === "loaded" || fileRef.readyState === "complete" ) {
-						fileRef.onreadystatechange = null;
-						callback();
-					}
-				};
-			} else {  //Others
-				fileRef.onload = function() {
-					callback();
-				};
-			}
-		};
-
-		fileRef.src = filePath;
-		document.getElementsByTagName("head")[0].appendChild(fileRef);
-	}
-
-	/*
 	Helper methods to get current script paths and folder
 	*/
 	var scriptFullPath = function(){
@@ -97,18 +70,11 @@
 				'base': {
 					//'path':"../bla.js" 
 				},
-				'history':{
-
-				},
-				'SCCP':{//Select , Cut, Copy, Paste
-					
-				},
-				'crop':{
-
-				},
-				'annotation':{
-
-				}
+				'history':{},
+				'SCCP':{},//Select , Cut, Copy, Paste
+				'crop':{},
+				'annotation':{},
+				'text':{}
 			},
 			'font-awesome-path':'default'
 		},
@@ -148,18 +114,23 @@
 		Sets the DOM structure required for proper functioning and tools
 		
 		Init the fabric objects and init objects
+
+		Also added object support to have better controls
 		*/
 		initDOM: function(){
 			var _this = this;
 			var container = this.container = ShapeJS.util.createHTMLElement('<div class="shapejs-container" tabindex="1"></div>');
 
 			this.toolbar = ShapeJS.util.createHTMLElement('<ul class="shapejs-toolbar"></ul>');
+			this.toolbar.items = {};
 			container.appendChild(this.toolbar);
 
 			this.toolbox = ShapeJS.util.createHTMLElement('<ul class="shapejs-toolbox"></ul>');
+			this.toolbox.items = {};
 			container.appendChild(this.toolbox);
 
 			this.subToolbar = ShapeJS.util.createHTMLElement('<ul class="shapejs-sub-toolbar"></ul>');
+			this.subToolbar.items = {};
 			container.appendChild(this.subToolbar);
 
 			this.canvasContainer = ShapeJS.util.createHTMLElement('<div class="shapejs-canvas-container"></div>');
@@ -250,7 +221,7 @@
 					pathToPlugin = _this.options.plugins[name].path;
 				}
 				//load js file, once file is loaded, instatiate it and move to next one
-				loadJSFile(pathToPlugin, function(){
+				util.loadJSFile(pathToPlugin, function(){
 					//all_plugins_arr[index] = new _this.Plugin(name);
 					//all_plugins_arr[index].init(_this,  _this.options.plugins[name]);
 					ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
@@ -282,38 +253,78 @@
 			return action;
 		},
 
-		addToolbarActions: function(toolbarAction){
+		addToolbarActions: function(toolbarAction, context){
 			this.toolbar.appendChild(toolbarAction);
-		},
-
-		/*
-		
-		*/
-		createToolboxActions: function(element, dropdown){
-			var action = document.createElement('li');
-			action.appendChild(element);
-			if (dropdown){
-				action.appendChild(dropdown);
+			if (context){
+				this.toolbar.items[context] = toolbarAction;
 			}
-			return action;
 		},
 
 		/*
 		
 		*/
-		addToolboxActions: function(toolboxActions){
-			this.toolbox.appendChild(toolboxActions);
+		createToolboxButton: function(element){
+			var _this = this;
+			var el = document.createElement('li');
+			el.appendChild(element);
+			
+			//make it a button that holds the element
+			var btn = ShapeJS.util.createButton(el);
+
+			btn.addEventListener('click', function(event){
+				//deactivate all items and change element class
+				for (var itemType in _this.toolbox.items){
+					var item = _this.toolbox.items[itemType];
+					if (item.active && item.element != this){
+						item.element.classList.remove('shapejs-toolbox-active');
+						item.deactivate();
+						item.active = false;
+					}
+				}
+
+				//activate/deactivate this button
+				btn.active = !btn.active;
+				if (btn.active){
+					this.classList.add('shapejs-toolbox-active');
+					btn.activate();
+				}else{
+					this.classList.remove('shapejs-toolbox-active');
+					btn.deactivate();
+				}
+			});
+
+			return btn;
+		},
+
+		// toolbarActions is the same as one return above
+		addToolboxButton: function(toolboxActions, context){
+			this.toolbox.appendChild(toolboxActions.element);
+			if (context){
+				this.toolbox.items[context] = toolboxActions;
+			}
+		},
+
+		resetToolbox: function(){
+
 		},
 
 		/*
 		
 		*/
-		addSubToolbarActions: function(subToolbarAction){
+		createSubToolbarButtonGroup: function(){
+
+		},
+
+		addSubToolbarActions: function(subToolbarAction, context){
 			this.subToolbar.appendChild(subToolbarAction);
+			if (context){
+				this.subToolbar.items[context] = subToolbarAction;
+			}
 		},
 
-		clearSubToonbarActions: function(){
+		clearSubToolbarActions: function(){
 			this.subToolbar.innerHTML = "";
+			this.subToolbar.items = {};
 		}
 	}
 
@@ -331,88 +342,208 @@
 		}
 	};
 
-	ShapeJS.util = {
-			/*
-			used to add/ovverride objB's property into the objA
+	
 
-			false used to confirm if objA is actually trying to ovverride the properties
+	var util = {
+		/*
+		used to add/ovverride objB's property into the objA
 
-			order matters here, because one could be a prototype object, which
-			affects all the plugins
-			*/
-			extend: function extend(objA, objB){
-				var prop;
-				for (prop in objB){
-					if (objB.hasOwnProperty(prop) && objA.hasOwnProperty(prop) === false){
-						objA[prop] = objB[prop];
+		false used to confirm if objA is actually trying to ovverride the properties
+
+		order matters here, because one could be a prototype object, which
+		affects all the plugins
+		*/
+		extend: function (objA, objB){
+			var prop;
+			for (prop in objB){
+				if (objB.hasOwnProperty(prop) && objA.hasOwnProperty(prop) === false){
+					objA[prop] = objB[prop];
+				};
+			}
+			return objA;
+		},
+
+		//Gets the element by a query selector
+		getElement: function(query){
+			return document.querySelector(query);
+		},
+
+		insertAfter: function(newNode, refNode){
+			refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+		},
+
+		/*
+		*/
+		createButton: function(element){
+			function Button(el){
+				this.element = el;
+				this.active = false;
+				this.dropdown = null;
+			}
+
+			Button.prototype = {
+				addEventListener: function(eventName, callback) {
+				    var el = this.element;
+				    el.addEventListener(eventName, callback);
+		    	},
+		    	removeEventListener: function(eventName){
+		    		var el = this.element;
+		    		el.removeEventListener(eventName);
+		    	},
+		    	disable: function(value){
+		    		this.element.disabled = (value) ? true : false;
+		    	},
+		    	trigger: function(eventName){
+		    		var el = this.element;
+				    return el[eventName]();
+		    	},
+		    	addDropDown: function(dropdown, direction){
+		    		var el = this.element;
+		    		var parent = document.createElement('li');
+		    		var clickHandler = this.element.onclick;
+					var dropTimeout;
+
+					this.dropdown = dropdown;
+
+		    		direction = direction || 'right';
+		    		el.parentNode.replaceChild(parent, el);
+		    		parent.appendChild(el);
+		    		parent.appendChild(dropdown);
+
+		    		parent.style.position = 'relative';
+
+		    		/* Display the DD*/
+					this.addEventListener('mousedown', function(){
+						dropTimeout = setTimeout(function(){
+							this.removeEventListener('click');
+							dropdown.style.display = 'block';
+						}, 400)
+					});
+
+					this.addEventListener('mouseup', function(event){
+						clearTimeout(dropTimeout);
+						this.addEventListener('click', clickHandler);
+					});
+		    	},
+		    	addItemToDropdown: function(el){
+		    		if (!this.dropdown) throw "No dropdown yet";
+		    		this.dropdown.appendChild(el);
+		    	}
+			}
+			return new Button(element);
+		},
+
+		/*
+			used to create a element using a string and return it
+			//TODO
+		*/
+		createHTMLElement: function(str){
+			var element = document.createElement('div');
+			if (str.indexOf("<") != -1 && str.indexOf(">") != -1){
+				element.innerHTML = str;
+			}else{
+				return document.createElement('str');
+			}
+			return element.firstChild;
+		},
+
+		/*
+			Creates coordinates for the objects added to the canvas on object init
+
+			takes a limit so object doesnt go off;
+		*/
+		getCoords: function(offset, limit){
+			var off = offset || 50;
+			var lim = limit || off/2;
+			var left = Math.floor(Math.random() * off) - lim;
+			var top = Math.floor(Math.random() * off) - lim;
+			return {
+				left: (left <  0) ? 0: left,
+				top: (top < 0 )? 0 : top
+			}
+		},
+
+		/*
+			load a js or css file dynamically and call a callback
+		*/
+		loadJSFile: function (filePath, callback){
+			var fileRef;
+			if (!filePath) throw "No file to load";
+			fileRef = document.createElement('script');
+			fileRef.type = 'text/javascript';
+			if (typeof callback === 'function'){
+				if(fileRef.readyState) {  //IE
+					script.onreadystatechange = function() {
+						if ( fileRef.readyState === "loaded" || fileRef.readyState === "complete" ) {
+							fileRef.onreadystatechange = null;
+							callback();
+						}
+					};
+				} else {  //Others
+					fileRef.onload = function() {
+						callback();
 					};
 				}
-				return objA;
-			},
+			};
 
-			/*
-			*/
-			getEl: function(query){
-				return document.querySelector(query);
-			},
+			fileRef.src = filePath;
+			document.getElementsByTagName("head")[0].appendChild(fileRef);
+		},
 
-			/*
-			*/
-			createElement: function(str){
-				return document.createElement(str);
-			},
+		/**
+		 * Usage: d = new Detector();
+		 *        d.detect('font name');
+		 */
+		fontDetection: function() {
+		    // a font will be compared against all the three default fonts.
+		    // and if it doesn't match all 3 then that font is not available.
+		    var baseFonts = ['monospace', 'sans-serif', 'serif'];
 
-			/*
-			*/
-			createButton: function(element){
-				function Button(element){
-					this.element = element;
-				}
+		    //we use m or w because these two characters take up the maximum width.
+		    // And we use a LLi so that the same matching fonts can get separated
+		    var testString = "mmmmmmmmmmlli";
 
-				Button.prototype = {
-					addEventListener: function(eventName, callback) {
-					    var el = this.element;
-					    if (el.addEventListener){
-					    	el.addEventListener(eventName, callback);
-					    } else if (el.attachEvent) {
-					    	el.attachEvent('on' + eventName, callback);
-					    }
-			    	},
-			    	disable: function(value){
-			    		this.element.disabled = (value) ? true : false
-			    	}
-				}
-				return new Button(element);
-			},
+		    //we test using 72px font size, we may use any size. I guess larger the better.
+		    var testSize = '72px';
 
-			/*
-				used to create a element using a string and return it
-				//TODO
-			*/
-			createHTMLElement: function(str){
-				var element = document.createElement('div');
-				if (str.indexOf("<") != -1 && str.indexOf(">") != -1){
-					element.innerHTML = str;
-				}else{
-					return document.createElement('str');
-				}
-				return element.firstChild;
-			},
+		    var h = document.getElementsByTagName("body")[0];
 
-			/*
-				Creates coordinates for the objects added to the canvas on object init
+		    // create a SPAN in the document to get the width of the text we use to test
+		    var s = document.createElement("span");
+		    s.style.fontSize = testSize;
+		    s.innerHTML = testString;
+		    var defaultWidth = {};
+		    var defaultHeight = {};
+		    for (var index in baseFonts) {
+		        //get the default width for the three base fonts
+		        s.style.fontFamily = baseFonts[index];
+		        h.appendChild(s);
+		        defaultWidth[baseFonts[index]] = s.offsetWidth; //width for the default font
+		        defaultHeight[baseFonts[index]] = s.offsetHeight; //height for the defualt font
+		        h.removeChild(s);
+		    }
 
-				takes a limit so object doesnt go off;
-			*/
-			getCoords: function(offset, limit){
-				var off = offset || 50;
-				var lim = limit || off/2;
-				var left = Math.floor(Math.random() * off) - lim;
-				var top = Math.floor(Math.random() * off) - lim;
-				return {
-					left: (left <  0) ? 0: left,
-					top: (top < 0 )? 0 : top
-				}
+		    function detect(font) {
+		        var detected = false;
+		        for (var index in baseFonts) {
+		            s.style.fontFamily = font + ',' + baseFonts[index]; // name of the font along with the base font for fallback.
+		            h.appendChild(s);
+		            var matched = (s.offsetWidth != defaultWidth[baseFonts[index]] || s.offsetHeight != defaultHeight[baseFonts[index]]);
+		            h.removeChild(s);
+		            detected = detected || matched;
+		        }
+		        return detected;
+		    }
+
+		    this.detect = detect;
+		},
+
+		appendMultipleChildren: function(parentNode, elements){
+			for (var i in elements){
+				parentNode.appendChild(elements[i]);
 			}
+			return parentNode;
 		}
+	}
+	ShapeJS.util = util;
 }())

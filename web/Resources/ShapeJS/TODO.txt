@@ -1,0 +1,20 @@
+General
+- follow a more object oriented design
+	- make the DOM more object oriented
+	- make a plugin object
+
+-Base
+	-background color
+
+History
+- Exceptions to the history (text object)? like for adding visual selection box
+
+
+Annotation
+- move annotation helper functions outside of the plugin functions
+- annotation set initial brush color and width
+
+
+Drag and Drop File API
+
+Make your own util library

@@ -18,7 +18,7 @@
 		}else{
 			link.href = options['font-awesome-path'];
 		}
-		ShapeJS.util.getEl('head').appendChild(link);
+		ShapeJS.util.getElement('head').appendChild(link);
 
 		/*
 			add basic actions for the canvas
@@ -30,6 +30,9 @@
 		/* Create Edit Actions */
 		var edit = shapejs.toolbar.editActions = document.createElement('ul');
 		shapejs.addToolbarActions(shapejs.createToolbarActions('Edit', edit));
+
+		var view = shapejs.toolbar.viewActions = document.createElement('ul');
+		shapejs.addToolbarActions(shapejs.createToolbarActions('View', view));
 
 		/* Base actions for every canvas*/
 		var clearBtn = ShapeJS.util.createHTMLElement('<li>Clear Canvas</li>');
@@ -57,11 +60,24 @@
 		file.appendChild(exportBtn);
 
 
+		
+		function removeObj(){
+			if(canvas.getActiveGroup()){
+	        	canvas.getActiveGroup().forEachObject(function(o){
+	        		canvas.remove(o) 
+	        	});
+	  			canvas.discardActiveGroup().renderAll();
+		    }else if(canvas.getActiveObject()){
+	        	canvas.remove(canvas.getActiveObject());
+		    }
+		};
+
 		/*
 			Allow key handler features on the shapejs object in focus
 		*/
 		shapejs.keyHandles = {
-
+			8: removeObj,
+			46: removeObj
 		}
 
 		shapejs.onKeyDownHandler = function(event){
@@ -79,12 +95,14 @@
 			}
 		}
 
+
+
 		/*
 			add color input to toolbox
 		*/
 		shapejs.toolbox.colorInput = '<input style="width:25px" type="color" value="#000000">';
 		shapejs.toolbox.colorInput = ShapeJS.util.createHTMLElement(shapejs.toolbox.colorInput);
-		var primaryColor = shapejs.createToolboxActions(shapejs.toolbox.colorInput);
-		shapejs.addToolboxActions(primaryColor);
+		var primaryColor = shapejs.createToolboxButton(shapejs.toolbox.colorInput);
+		shapejs.addToolboxButton(primaryColor);
 	}
 }());
