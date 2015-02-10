@@ -74,7 +74,8 @@
 				'SCCP':{},//Select , Cut, Copy, Paste
 				'crop':{},
 				'annotation':{},
-				'text':{}
+				'text':{},
+				'shapes':{}
 			},
 			'font-awesome-path':'default'
 		},
@@ -273,22 +274,15 @@
 
 			btn.addEventListener('click', function(event){
 				//deactivate all items and change element class
-				for (var itemType in _this.toolbox.items){
-					var item = _this.toolbox.items[itemType];
-					if (item.active && item.element != this){
-						item.element.classList.remove('shapejs-toolbox-active');
-						item.deactivate();
-						item.active = false;
-					}
-				}
+				_this.resetToolbox([this]);
 
 				//activate/deactivate this button
 				btn.active = !btn.active;
 				if (btn.active){
-					this.classList.add('shapejs-toolbox-active');
+					this.classList.add('shapejs-button-active');
 					btn.activate();
 				}else{
-					this.classList.remove('shapejs-toolbox-active');
+					this.classList.remove('shapejs-button-active');
 					btn.deactivate();
 				}
 			});
@@ -296,7 +290,6 @@
 			return btn;
 		},
 
-		// toolbarActions is the same as one return above
 		addToolboxButton: function(toolboxActions, context){
 			this.toolbox.appendChild(toolboxActions.element);
 			if (context){
@@ -304,16 +297,22 @@
 			}
 		},
 
-		resetToolbox: function(){
-
+		resetToolbox: function(exclude){
+			for (var itemType in this.toolbox.items){
+				var item = this.toolbox.items[itemType];
+				for (var bad in exclude){
+					if (item.active && exclude[bad] != item.element){
+						item.element.classList.remove('shapejs-button-active');
+						item.deactivate();
+						item.active = false;
+					}
+				}
+			}
 		},
 
 		/*
-		
+		Subtoolbar stuff
 		*/
-		createSubToolbarButtonGroup: function(){
-
-		},
 
 		addSubToolbarActions: function(subToolbarAction, context){
 			this.subToolbar.appendChild(subToolbarAction);
@@ -325,6 +324,23 @@
 		clearSubToolbarActions: function(){
 			this.subToolbar.innerHTML = "";
 			this.subToolbar.items = {};
+		},
+
+		//==============================================================================
+		//=================================ShapeJS Support==============================
+		//==============================================================================
+
+		setActiveObjectProp: function(name, value){
+			var object = this.canvas.getActiveObject();
+			if (!object) return;
+			object.set(name, value).setCoords();
+			this.canvas.renderAll();
+		},
+
+		getActiveObjectProp: function(name){
+			var object = this.canvas.getActiveObject();
+			if (!object) return;
+			return object.get(name);
 		}
 	}
 
@@ -340,9 +356,7 @@
 		sayName: function(){
 			console.log(this.name);
 		}
-	};
-
-	
+	};	
 
 	var util = {
 		/*
@@ -432,6 +446,32 @@
 			}
 			return new Button(element);
 		},
+		
+		createButtonGroup: function(buttons, options){
+			function ButtonGroup(btns, opts){
+				this.multiSelect = opts.allowMulti || false;
+				this.clickHandler = options.groupClickHandler;
+				this.buttonGroup = [];
+				this.element = document.createElement('ul');
+
+				for (var x = 0; x < buttons.length; x++){
+					var btn = buttons[x];
+
+					this.addButton(btn);
+				}
+			}
+			ButtonGroup.prototype = {
+				addButton: function(btn){
+					var list = document.createElement('li');
+					list.appendChild(btn.element);
+					btn.element = list;
+
+					this.buttonGroup.push(btn);
+					this.element.appendChild(btn.element);
+				}
+			}
+			return new ButtonGroup(buttons, options);
+		},
 
 		/*
 			used to create a element using a string and return it
@@ -502,7 +542,6 @@
 		    //we use m or w because these two characters take up the maximum width.
 		    // And we use a LLi so that the same matching fonts can get separated
 		    var testString = "mmmmmmmmmmlli";
-
 		    //we test using 72px font size, we may use any size. I guess larger the better.
 		    var testSize = '72px';
 

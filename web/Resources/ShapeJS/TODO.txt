@@ -4,7 +4,8 @@ General
 	- make a plugin object
 
 -Base
-	-background color
+- background color
+- opacity
 
 History
 - Exceptions to the history (text object)? like for adding visual selection box
@@ -14,6 +15,17 @@ Annotation
 - move annotation helper functions outside of the plugin functions
 - annotation set initial brush color and width
 
+Text
+- font selection
+- text colors
+- text background
+
+Shapes
+- add stroke to objects
+- stroke width
+- stroke color
+- shapes to add
+- shadows
 
 Drag and Drop File API
 

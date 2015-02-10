@@ -93,18 +93,14 @@
 			redo(shapejs);
 		})
 
+		function canvasEvent(options) {
+			getState(shapejs, options);
+		};
 		//add event handler for history
-		canvas.on('object:modified', function(options) {
-			getState(shapejs, options);
-		});
-
-		canvas.on('object:added', function(options) {
-			getState(shapejs, options);
-		});
-
-		canvas.on('object:removed', function(options) {
-			getState(shapejs, options);
-		});
+		canvas.on('object:modified', canvasEvent);
+		canvas.on('object:added', canvasEvent);
+		canvas.on('object:removed', canvasEvent);
+		canvas.on('canvas:cleared', canvasEvent);
 
 		
 		shapejs.toolbar.editActions.appendChild(redoBtn);
