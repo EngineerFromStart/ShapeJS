@@ -20,6 +20,13 @@
 	margin: 0px;
 }
 
+.shapejs-container hr {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+	margin: 13px 0;
+}
+
 /*Toolbar*/
 
 .shapejs-toolbar{
@@ -68,6 +75,7 @@
 .shapejs-toolbar > li:hover > ul > li{
 	color: #444;
 	padding: 0px 17px;
+	line-height: 25px;
 }
 
 .shapejs-toolbar > li:hover > ul > li:hover{
@@ -100,6 +108,7 @@
 	cursor: pointer;
 	border: 1px solid #EEE;
 	position: relative;
+	line-height: 20px;
 }
 
 .shapejs-toolbox > li:hover {

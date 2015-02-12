@@ -43,30 +43,32 @@
 	function paste(shapejs){
 		var canvas = shapejs.canvas;
 		var copiedObjects = shapejs.copiedObjects;
-	    if(copiedObjects.length > 0){
-	        for(var i in copiedObjects){
-	        	var object;
-	        	//Objects became async since 1.2.2
-	        	if (fabric.util.getKlass(copiedObjects[i].type).async) {
-					copiedObjects[i].clone(function (clone) {
-						clone.set({
-							left: clone.getLeft()+10,
-							top: clone.getTop()+10
-						});
-						object = clone;
-					});
-				}else{
-					object = copiedObjects[i].clone();
-					object.set('top',object.getTop()+10);
-					object.set('left',object.getLeft()+10);
-				}
-	        	//fabric.util.object.clone()
-	        	canvas.add(object);
-	        }                    
-	    }
+        for(var i in copiedObjects){
+        	pasteObject(shapejs, copiedObjects[i])
+        }
 	    canvas.renderAll();  
 	}
-
+	
+	function pasteObject(shapejs, canvasObj){
+		var canvas = shapejs.canvas;
+		var object;
+    	//Objects became async since 1.2.2
+    	if (fabric.util.getKlass(canvasObj.type).async) {
+    		canvasObj.clone(function (clone) {
+				clone.set({
+					left: clone.getLeft()+10,
+					top: clone.getTop()+10
+				});
+				object = clone;
+				canvas.add(clone);
+			});
+		}else{
+			object = canvasObj.clone();
+			object.set('top',object.getTop()+10);
+			object.set('left',object.getLeft()+10);
+			canvas.add(object);
+		}
+	}
 	/*
 		Adds the buttons for proper copy and paste
 	*/
@@ -76,7 +78,7 @@
 
 		//document.onkeydown = onKeyDownHandler;
 		var keyHandles = {
-			88: function(event){
+			88: function(event){ // Cut Ctrl+X
 				if (event.ctrlKey){
 					event.preventDefault();
 					cut(shapejs);

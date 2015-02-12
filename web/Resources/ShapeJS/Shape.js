@@ -77,7 +77,10 @@
 				'text':{},
 				'shapes':{}
 			},
-			'font-awesome-path':'default'
+			'font-awesome-path':'default',
+			afterRender: function(shapejs){
+				
+			}
 		},
 
 		
@@ -100,11 +103,11 @@
 					//canvas must load after the image is loaded, else canvas gets blank image
 					img.onload = function(){
 						_this.options.initObjects.unshift(new fabric.Image(img));
-						_this.initDOM().initPlugins();
+						_this.initDOM().initPlugins().options.afterRender(_this);
 					};
 					img.src = this.replaceEl.src;//load the image
 				}else{
-					this.initDOM().initPlugins();
+					this.initDOM().initPlugins().afterRender(this);
 				}
 			}else{
 				throw "Must provide replacement element String"

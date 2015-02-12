@@ -30,3 +30,36 @@ Shapes
 Drag and Drop File API
 
 Make your own util library
+
+
+LIMS Specific
+- img load might cause server out of sessions. better to load through browser instead - x
+- img create/adding to attribute cannot have prefix in front of attribute name
+- change image file id on new one attached in json stored - X
+- do not allow deletion of image from the canvas;
+- Do Logging
+
+
+
+/*
+	--Because there is an issue with image and sessions in the LIMS
+	--The request does not get the session, therefor have the browser load the image
+	
+	--This also solves the cloning (copy -> paste plugin) issue because 
+	that piece of code uses fromObject as well
+	*/
+	
+	fabric.Image.fromObject = function(object, callback){
+		var newImg = new Image();
+		newImg.onload = function(){
+			shape1.disableHistoryStackChange = true;
+			fabric.Image.prototype._initFilters.call(object, object, function(filters) {
+		        object.filters = filters || [ ];
+		        var instance = new fabric.Image(newImg, object);
+		        callback && callback(instance);
+		        
+	   			shape1.disableHistoryStackChange = false;
+	   		});
+		}
+		newImg.src = object.src;
+	}

@@ -2,44 +2,44 @@
 
 	/*
 	-index used to keep track of where you are in history
-	-changingHistory used to check if undo/redo is called, 
-	 thus historystack doesnt get changed by canvas events
+	-disableHistoryStackChange used to check if undo/redo is called, 
+	 thus historystack doesnt get changed by load from json
 	-history stack holds all the history
 	*/
 	function undo(shapejs){
 		var canvas = shapejs.canvas;
-
-		shapejs.changingHistory = true;
+		shapejs.disableHistoryStackChange = true;
 		//undo only if you are in the middle of the stack
 		if (shapejs.historyIndex > 0){
 			shapejs.historyIndex -= 1;
 			var canvasJSON = shapejs.historyStack[shapejs.historyIndex];
 			canvas.clear().renderAll();
-			canvas.loadFromJSON(canvasJSON);
-			canvas.renderAll();
+			canvas.loadFromJSON(canvasJSON, function(){
+				canvas.renderAll();
+			});
 		}
-		shapejs.changingHistory = false;
+		shapejs.disableHistoryStackChange = false;
 	}
 
 	function redo(shapejs){
 		var canvas = shapejs.canvas;
-
-		shapejs.changingHistory = true;
+		shapejs.disableHistoryStackChange = true;
 		//redo only if there are more items in stack
 		if (shapejs.historyIndex < shapejs.historyStack.length - 1){
 			shapejs.historyIndex += 1;
 			var canvasJSON = shapejs.historyStack[shapejs.historyIndex];
 			canvas.clear().renderAll();
-			canvas.loadFromJSON(canvasJSON);
-			canvas.renderAll();
+			canvas.loadFromJSON(canvasJSON, function(){
+				canvas.renderAll();
+			});
 		}
-		shapejs.changingHistory = false;
+		shapejs.disableHistoryStackChange = false;
 	}
 
 	//update the stack on object add/change/remove
 	//unless its from undo/redo, else the stack will overflow
 	function getState(shapejs, options){
-		if (!shapejs.changingHistory){
+		if (!shapejs.disableHistoryStackChange){
 			//so the stack gets cleaned when changes are made after an undo
 			shapejs.historyStack = shapejs.historyStack.slice(0, shapejs.historyIndex+1);
 			
@@ -53,7 +53,7 @@
 		var historyStack = shapejs.historyStack = [];
 		var historyIndex = shapejs.historyIndex = -1;//no indexed items yet
 
-		var changingHistory = shapejs.changingHistory = false;
+		var disableHistoryStackChange = shapejs.disableHistoryStackChange = false;
 
 		var canvas = shapejs.canvas;
 
