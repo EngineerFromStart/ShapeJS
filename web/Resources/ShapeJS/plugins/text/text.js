@@ -128,8 +128,8 @@
 			/* Font family*/
 			var font = ShapeJS.util.createHTMLElement('<li>Font:</li>');
 			var fontFamily = ShapeJS.util.createHTMLElement('<select></select>');
-			var fontFamilies = ['Ariel', 'Verdana', 'Courier New', 'Georgia'];
-			for (var x = 0; x <= fontFamilies.length; x++){
+			var fontFamilies = ['Times New Roman', 'Arial', 'Verdana', 'Courier New', 'Georgia'];
+			for (var x = 0; x <= fontFamilies.length - 1; x++){
 				fontFamily.appendChild(ShapeJS.util.createHTMLElement('<option value="'+fontFamilies[x]+'">'+fontFamilies[x]+'</option>'));
 			}
 			font.appendChild(fontFamily);
@@ -140,6 +140,12 @@
 			text.appendChild(textArea);
 			text.appendChild(textAdd);
 			textAdd = ShapeJS.util.createButton(textAdd);
+			function getTextSpecs(){
+				return {
+					fontFamily: fontFamily.value,
+					fontSize: size.value
+				}
+			}
 			textAdd.addEventListener('click', function(event){
 				var txt = textArea.value;
 				var textSpecs = getTextSpecs();

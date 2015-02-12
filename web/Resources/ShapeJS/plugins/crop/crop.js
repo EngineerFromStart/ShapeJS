@@ -1,9 +1,146 @@
 (function(){
-  'use strict';
+    'use strict';
 
-  ShapeJS.plugins['crop'] = function(shapejs, options){
-    
-  };
+    var crop; // the crop (subtoolbar) button
+    var cropEl = getCropElement();
+    function getCropElement(){
+        return new fabric.Rect({
+            fill: 'rgba(0,0,0,0.3)',
+            originX: 'left',
+            originY: 'top',
+            stroke: '#ccc',
+            strokeDashArray: [2, 2],
+            opacity: 1,
+            width: 100,
+            height: 100,
+            borderColor: '#36fd00',
+            cornerColor: 'green',
+            hasRotatingPoint: false
+        });
+    }
+
+    function degToRad(degrees) {
+        return degrees * (Math.PI / 180);
+    }
+
+    function setToolbar(shapejs){
+        var canvas = shapejs.canvas;
+        /*
+            object or canvas
+            add position
+            add width
+            crop button
+        */
+        var widthContainer = document.createElement('li');
+        var widthIcon = ShapeJS.util.createHTMLElement('<span>W <i class="fa fa-arrows-h"></i></span>');
+        var width = ShapeJS.util.createHTMLElement('<input style="width:60px" type="number"/>');
+        var heightContainer = document.createElement('li');
+        var heightIcon = ShapeJS.util.createHTMLElement('<span>H <i class="fa fa-arrows-v"></i></span>');
+        var height = ShapeJS.util.createHTMLElement('<input style="width:60px" type="number"/>');
+
+        var cropContainer = document.createElement('li');
+        crop = ShapeJS.util.createHTMLElement('<a><i class="fa fa-crop"></i>Crop</a>');
+        cropContainer.appendChild(crop);
+        crop = ShapeJS.util.createButton(crop);
+
+        widthContainer.appendChild(widthIcon);
+        widthContainer.appendChild(width);
+
+        heightContainer.appendChild(heightIcon);
+        heightContainer.appendChild(height);
+
+
+        shapejs.addSubToolbarActions(widthContainer, 'width');
+        shapejs.addSubToolbarActions(heightContainer, 'height');
+        shapejs.addSubToolbarActions(cropContainer, 'width');
+    }
+
+    ShapeJS.plugins['crop'] = function(shapejs, options){
+        var canvas = shapejs.canvas;
+
+        var cropBtn = ShapeJS.util.createHTMLElement('<i class="fa fa-crop"></i>');
+        cropBtn = shapejs.createToolboxButton(cropBtn);
+        shapejs.addToolboxButton(cropBtn, 'crop');
+
+        var selectedEl = null;
+        var objectsOnScreen = canvas.getObjects().length;
+
+        cropBtn.activate = function(){
+            canvas.isCropMode = true;
+            shapejs.clearSubToolbarActions();
+            setToolbar(shapejs);
+
+            objectsOnScreen = canvas.getObjects().length;
+            selectedEl = canvas.getActiveObject() || canvas.getActiveGroup();
+            startCrop(selectedEl);
+        }
+
+        cropBtn.deactivate = function(){
+            canvas.isCropMode = false;
+            shapejs.clearSubToolbarActions();
+            endCrop();
+        }
+
+        function startCrop(){
+            for (var i = 0; i < objectsOnScreen; i++) {
+                canvas.item(i).selectable = false;
+            }
+
+            if (selectedEl){
+                cropEl.left = selectedEl.left;
+                cropEl.top = selectedEl.top;
+                cropEl.width = selectedEl.width*selectedEl.scaleX;
+                cropEl.height = selectedEl.height*selectedEl.scaleY;
+            }
+
+            shapejs.disableHistoryStackChange = true;
+            canvas.add(cropEl);
+            canvas.setActiveObject(cropEl);
+
+            crop.addEventListener('click', function(event){
+                var eLeft = cropEl.get('left');
+                var eTop = cropEl.get('top');
+                var left = eLeft - selectedEl.left;
+                var top = eTop - selectedEl.top;
+
+                left *= 1;
+                top *= 1;
+
+                var eWidth = cropEl.get('width');
+                var eHeight = cropEl.get('height');
+                var eScaleX = cropEl.get('scaleX');
+                var eScaleY = cropEl.get('scaleY');
+                var width = eWidth * 1;
+                var height = eHeight * 1;
+
+                function clip(ctx){
+                    ctx.rect(-(eWidth / 2) + left, -(eHeight / 2) + top, parseInt(width * eScaleX), parseInt(eScaleY * height));
+                };
+
+                if (selectedEl){
+                    selectedEl.clipTo = clip;
+                }else {
+                    if (confirm("Crop Canvas?")){
+                        canvas.clipTo = clip;
+                    }
+                }
+                canvas.renderAll();
+                cropBtn.trigger('click');
+            });
+        }
+
+        function endCrop(){
+            //selectedEl = null;
+            shapejs.disableHistoryStackChange = true;
+            canvas.remove(cropEl);
+            shapejs.disableHistoryStackChange = false;
+            for (var i = 0; i < objectsOnScreen; i++) {
+                canvas.item(i).selectable = true;
+            }
+
+            //crop.removeEventListener('click', cropElement);
+        }
+    };
 }());
 
 
@@ -12,6 +149,7 @@
 
   var CropZone = fabric.util.createClass(fabric.Rect, {
     _render: function(ctx) {
+      
       this.callSuper('_render', ctx);
 
       var canvas = ctx.canvas;

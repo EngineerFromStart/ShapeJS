@@ -4,8 +4,8 @@ General
 	- make a plugin object
 
 -Base
-- background color
-- opacity
+- background color, update other plugins to use this
+- opacity, update other plugins to use this
 
 History
 - Exceptions to the history (text object)? like for adding visual selection box
@@ -19,6 +19,9 @@ Text
 - font selection
 - text colors
 - text background
+- on size increase (up/down), set size dropdown and then use the size dropdown. up/down should use size max/min values
+- on text selected, if text value change, update it
+- on text selected, if font change, update it
 
 Shapes
 - add stroke to objects
@@ -38,7 +41,7 @@ LIMS Specific
 - change image file id on new one attached in json stored - X
 - do not allow deletion of image from the canvas;
 - Do Logging
-
+- Tickets for home page on lims, for gadgets
 
 
 /*

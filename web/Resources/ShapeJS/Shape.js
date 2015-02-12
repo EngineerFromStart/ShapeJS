@@ -15,7 +15,7 @@
  */
 
 //wrapping braces is a coding convention
-(function(){//changes the scope of the ShapeJS;
+(function initShapeJS(){//changes the scope of the ShapeJS;
 	'use strict'; // forces you to instantiate variables by using 'var'
 
 	//==============================================================================
@@ -107,7 +107,7 @@
 					};
 					img.src = this.replaceEl.src;//load the image
 				}else{
-					this.initDOM().initPlugins().afterRender(this);
+					this.initDOM().initPlugins().options.afterRender(this);
 				}
 			}else{
 				throw "Must provide replacement element String"
@@ -292,14 +292,14 @@
 
 			return btn;
 		},
-
+		
 		addToolboxButton: function(toolboxActions, context){
 			this.toolbox.appendChild(toolboxActions.element);
 			if (context){
 				this.toolbox.items[context] = toolboxActions;
 			}
 		},
-
+		
 		resetToolbox: function(exclude){
 			for (var itemType in this.toolbox.items){
 				var item = this.toolbox.items[itemType];

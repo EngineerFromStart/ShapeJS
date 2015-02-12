@@ -152,6 +152,7 @@
 .shapejs-sub-toolbar > li{
 	border-right: 2px solid #ccc;
 	display: inline-block;
+	padding: 0px 2px;
 }
 
 .shapejs-sub-toolbar > li > a{
