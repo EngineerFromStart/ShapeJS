@@ -34,7 +34,6 @@ Drag and Drop File API
 
 Make your own util library
 
-
 LIMS Specific
 - img load might cause server out of sessions. better to load through browser instead - x
 - img create/adding to attribute cannot have prefix in front of attribute name
@@ -43,8 +42,18 @@ LIMS Specific
 - Do Logging
 - Tickets for home page on lims, for gadgets
 
+- Warning for users that entities associated with other entities might run into trouble when changning revision. example -> experiment and containers and sampels.
 
-/*
+-Attlassian, Git implementation
+-Linux training (core specific)
+-Java 1 (one?)
+-Docker
+
+-Tableau drop down to create reports from query page
+
+-Hiring
+
+	/*
 	--Because there is an issue with image and sessions in the LIMS
 	--The request does not get the session, therefor have the browser load the image
 	

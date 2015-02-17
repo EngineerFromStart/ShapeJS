@@ -57,7 +57,8 @@
         var cropBtn = ShapeJS.util.createHTMLElement('<i class="fa fa-crop"></i>');
         cropBtn = shapejs.createToolboxButton(cropBtn);
         shapejs.addToolboxButton(cropBtn, 'crop');
-
+        
+        //Set toolbar and add function handler
         cropBtn.activate = function(){
             canvas.isCropMode = true;
             shapejs.clearSubToolbarActions();
@@ -72,20 +73,38 @@
             endObjectCrop();
         }
         
+        
+        function startObjectCrop(){
+            objectsOnScreen = canvas.getObjects().length;            
+            for (var i = 0; i < objectsOnScreen; i++){
+                canvas.item(i).on('selected', cropFn);
+            }
+        }
+
+        function endObjectCrop(){
+            for (var i = 0; i < objectsOnScreen; i++){
+                canvas.item(i).off('selected', cropFn);
+            }
+
+            shapejs.disableHistoryStackChange = true;
+            canvas.remove(cropEl);
+            shapejs.disableHistoryStackChange = false;
+        }
+        
         function cropFn(){
-            //resets
+            //resets and remove previous cropEls
             if (cropEl != null){
                 canvas.remove(cropEl);
             };
             var selectedEl = this;
             var selectedElScaleX = null;
             var selectedElScaleY = null;
-            
-            //remove previous event listener, else it crop all objects
+            //remove previous event listener, else it crop all objects, set when event listener is attached
             if (crop.eventListener){
                 crop.removeEventListener('click', crop.eventListener);
             }
             
+            //Set the scale of crop el to the selected element
             function setScalesForCrop(){
                 selectedElScaleX = selectedEl.scaleX;
                 selectedElScaleY = selectedEl.scaleY;
@@ -120,7 +139,9 @@
                 selectedEl.scaleY = selectedElScaleY;
             }
 
-            function getRectCrop(){
+            function cropClick(event){
+                setScalesForCrop();
+                
                 var left = cropEl.get('left') - selectedEl.get('left');
                 var top = cropEl.get('top') - selectedEl.get('top');
                 var eWidth = cropEl.get('width');
@@ -131,36 +152,41 @@
 
                 eWidth = eWidth * cropEl.scaleX;
                 eHeight = eHeight * cropEl.scaleY;
-
-                return {
-                    left: left,
-                    top: top,
-                    width: eWidth,
-                    height: eHeight
-                }
-            }
-
-            function cropClick(event){
+                
                 shapejs.disableHistoryStackChange = false;
 
+                
                 //modify the toObject behaviour for proper clipping on reading from JSON
                 selectedEl.toObject = (function(toObject){
                     return function() {
                         return fabric.util.object.extend(toObject.call(this), {
-                            rectCrop: getRectCrop()
+                            rectCrop: {
+                                left: left,
+                                top: top,
+                                width: eWidth,
+                                height: eHeight
+                            }
                         });
                     };
                 })(selectedEl.toObject);
 
                 //set for the clip functions
-                selectedEl.rectCrop = getRectCrop();
-                setScalesForCrop();
+                selectedEl.rectCrop = {
+                    left: left,
+                    top: top,
+                    width: eWidth,
+                    height: eHeight
+                };
                 
-                console.log(selectedEl);
-
                 selectedEl.clipTo = function(ctx){
-                    var rectCrop = this.rectCrop;
-                    ctx.rect(rectCrop.left, rectCrop.top, rectCrop.width, rectCrop.height);
+                    try{
+                        var rectCrop = this.rectCrop;
+                        ctx.rect(rectCrop.left, rectCrop.top, rectCrop.width, rectCrop.height);
+                    }catch(e){
+                        console.error(e);
+                        return;
+                    }
+                   
                 };
 
                 inverseScalesFromCrop();
@@ -185,23 +211,6 @@
             crop.addEventListener('click', cropClick);
             crop.eventListener = cropClick;
         };
-
-        function startObjectCrop(){
-            objectsOnScreen = canvas.getObjects().length;            
-            for (var i = 0; i < objectsOnScreen; i++){
-                canvas.item(i).on('selected', cropFn);
-            }
-        }
-
-        function endObjectCrop(){
-            for (var i = 0; i < objectsOnScreen; i++){
-                canvas.item(i).off('selected', cropFn);
-            }
-
-            shapejs.disableHistoryStackChange = true;
-            canvas.remove(cropEl);
-            shapejs.disableHistoryStackChange = false;
-        }
 
         //TODO add crop canvas functionality to edit drop down
         /*
