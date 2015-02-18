@@ -2,13 +2,15 @@ General
 - follow a more object oriented design
 	- make the DOM more object oriented
 	- make a plugin object
+- toolbox ordering
 
 -Base
 - background color, update other plugins to use this
 - opacity, update other plugins to use this
+- Resize/Crop Canvas tool
+- Grid overlay (background) on the canvas
 
 History
-- Exceptions to the history (text object)? like for adding visual selection box
 
 
 Annotation
@@ -16,12 +18,7 @@ Annotation
 - annotation set initial brush color and width
 
 Text
-- font selection
-- text colors
 - text background
-- on size increase (up/down), set size dropdown and then use the size dropdown. up/down should use size max/min values
-- on text selected, if text value change, update it
-- on text selected, if font change, update it
 
 Shapes
 - add stroke to objects
@@ -29,6 +26,9 @@ Shapes
 - stroke color
 - shapes to add
 - shadows
+
+Crop
+- Crop the canvas, not the image
 
 Drag and Drop File API
 

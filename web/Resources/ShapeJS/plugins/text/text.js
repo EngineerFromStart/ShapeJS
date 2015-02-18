@@ -3,6 +3,8 @@
 	/**/
 	ShapeJS.plugins['text'] = function(shapejs, options){
 		var canvas = shapejs.canvas;
+
+		var selectedEl = null;
 		//=============================================================
 		//==================Helper Functions===========================
 		//=============================================================
@@ -100,7 +102,7 @@
 			var bigSize = ShapeJS.util.createHTMLElement('<a><i class="fa fa-font"></i></a>');
 			bigSize.style.fontSize = "15px";
 			var size = ShapeJS.util.createHTMLElement('<select></select>');
-			for (var x = 16; x <= 100; x++){
+			for (var x = 16; x <= 60; x++){
 				size.appendChild(ShapeJS.util.createHTMLElement('<option value="'+x+'">'+x+'</option>'));
 			}
 			
@@ -112,14 +114,15 @@
 			smallSize.addEventListener('click', function setTextStyle(){
 				this.value = parseInt(shapejs.getActiveObjectProp('fontSize')) - 1;
 				shapejs.setActiveObjectProp('fontSize', this.value);
+				size.value = this.value;
 			});
 
 			bigSize = ShapeJS.util.createButton(bigSize);
 			bigSize.addEventListener('click', function setTextStyle(){
 				this.value = parseInt(shapejs.getActiveObjectProp('fontSize')) + 1;
 				shapejs.setActiveObjectProp('fontSize', this.value);
+				size.value = this.value;
 			});
-
 			size.addEventListener('change', function setTextStyle(){
 				shapejs.setActiveObjectProp('fontSize', this.value);
 			});
@@ -133,9 +136,21 @@
 				fontFamily.appendChild(ShapeJS.util.createHTMLElement('<option value="'+fontFamilies[x]+'">'+fontFamilies[x]+'</option>'));
 			}
 			font.appendChild(fontFamily);
+			fontFamily.addEventListener('change', function(e){
+				shapejs.setActiveObjectProp('fontFamily', this.value);
+			});
 
+			/* Text Change and Text Object */
 			var text = ShapeJS.util.createHTMLElement('<li></li>');
 			var textArea = ShapeJS.util.createHTMLElement('<textarea></textarea>');
+			canvas.on('object:selected', function(options){
+				if (options.target.type == 'text'){
+					textArea.value = options.target.get('text');
+				}
+			});
+			textArea.addEventListener('change', function(e){
+				shapejs.setActiveObjectProp('text', this.value);
+			});
 			var textAdd = ShapeJS.util.createHTMLElement('<a><i class="fa fa-plus"></i></a>');
 			text.appendChild(textArea);
 			text.appendChild(textAdd);
@@ -151,7 +166,6 @@
 				var textSpecs = getTextSpecs();
 				canvas.add(new fabric.Text(txt, textSpecs));
 			});
-			//COLOR
 
 			shapejs.addSubToolbarActions(font, 'fontFamily');
 			shapejs.addSubToolbarActions(align, 'align');
@@ -170,9 +184,6 @@
 		textBtn = ShapeJS.util.createHTMLElement(textBtn);
 		textBtn = shapejs.createToolboxButton(textBtn);//creates an element wrapped in <li>	
 
-		/*
-			Add an text object if non is selected
-		*/
 		textBtn.activate = function(){
 			canvas.isTextMode = true;
 			shapejs.clearSubToolbarActions();
@@ -185,5 +196,13 @@
 		}
 
 		shapejs.addToolboxButton(textBtn, 'text');
+
+		canvas.on('object:selected', function(options){
+			if (options.target.type == 'text'){
+				if (!canvas.isTextMode){
+					textBtn.trigger('click');
+				}
+			}
+		});
 	}
 }());

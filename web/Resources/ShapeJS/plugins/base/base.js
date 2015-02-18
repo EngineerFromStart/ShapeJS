@@ -27,14 +27,6 @@
 		var file = shapejs.toolbar.fileActions = document.createElement('ul');
 		shapejs.addToolbarActions(shapejs.createToolbarActions('File', file));
 
-		/* Create Edit Actions */
-		var edit = shapejs.toolbar.editActions = document.createElement('ul');
-		shapejs.addToolbarActions(shapejs.createToolbarActions('Edit', edit));
-
-		var view = shapejs.toolbar.viewActions = document.createElement('ul');
-		shapejs.addToolbarActions(shapejs.createToolbarActions('View', view));
-
-		/* Base actions for every canvas*/
 		var clearBtn = ShapeJS.util.createHTMLElement('<li>Clear Canvas</li>');
 		ShapeJS.util.createButton(clearBtn);
 		clearBtn.addEventListener('click', function(){
@@ -59,7 +51,22 @@
 		});
 		file.appendChild(exportBtn);
 
+		/* Create Edit Actions */
+		var edit = shapejs.toolbar.editActions = document.createElement('ul');
+		shapejs.addToolbarActions(shapejs.createToolbarActions('Edit', edit));
 
+		var removeBtn = ShapeJS.util.createHTMLElement('<li>Remove object<span class="shapejs-short-cut">Del</span></li>');
+		ShapeJS.util.createButton(removeBtn);
+		removeBtn.addEventListener('click', function(){
+			removeObj();
+		})
+		edit.appendChild(removeBtn);
+		edit.appendChild(document.createElement('hr'));
+
+		/* Create View Actions */
+		var view = shapejs.toolbar.viewActions = document.createElement('ul');
+		shapejs.addToolbarActions(shapejs.createToolbarActions('View', view));
+		
 		
 		function removeObj(){
 			if(canvas.getActiveGroup()){
@@ -76,8 +83,8 @@
 			Allow key handler features on the shapejs object in focus
 		*/
 		shapejs.keyHandles = {
-			8: removeObj,
-			46: removeObj
+			8: removeObj,//backspace
+			46: removeObj//delete
 		}
 
 		shapejs.onKeyDownHandler = function(event){
@@ -95,14 +102,25 @@
 			}
 		}
 
-
-
 		/*
 			add color input to toolbox
 		*/
 		shapejs.toolbox.colorInput = '<input style="width:25px" type="color" value="#000000">';
 		shapejs.toolbox.colorInput = ShapeJS.util.createHTMLElement(shapejs.toolbox.colorInput);
+		shapejs.toolbox.colorInput.addEventListener('change', function(){
+			canvas.getActiveObject().set('fill', this.value);
+			canvas.renderAll();
+		});
+		canvas.on('object:selected', function(options){
+			shapejs.toolbox.colorInput.value = options.target.get('fill');
+		});
 		var primaryColor = shapejs.createToolboxButton(shapejs.toolbox.colorInput);
+		primaryColor.activate = function(){
+
+		}
+		primaryColor.deactivate = function(){
+
+		}
 		shapejs.addToolboxButton(primaryColor);
 	}
 }());
