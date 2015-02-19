@@ -59,8 +59,8 @@
 		defaults: {
 			initObjects: [],
 			canvas:{
-				width: 150,
-				height: 150,
+				width: 200,
+				height: 200,
 				rescale: 'auto'
 			},
 			shapejsPath: scriptJSPath,
@@ -99,6 +99,13 @@
 			if (replaceEl && typeof replaceEl === "string"){
 				this.replaceEl = document.querySelector(replaceEl);
 				if (this.replaceEl.nodeName.toLowerCase() == "img"){
+					if (this.replaceEl.width > _this.options.canvas.width) {
+						_this.options.canvas.width = this.replaceEl.width;
+					}
+					if (this.replaceEl.height > _this.options.canvas.height) {
+						_this.options.canvas.height = this.replaceEl.height;
+					}
+
 					var img = new Image();
 					//canvas must load after the image is loaded, else canvas gets blank image
 					img.onload = function(){

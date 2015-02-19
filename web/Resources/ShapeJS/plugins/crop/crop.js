@@ -99,7 +99,7 @@
             var selectedEl = this;
             var selectedElScaleX = null;
             var selectedElScaleY = null;
-            //remove previous event listener, else it crop all objects, set when event listener is attached
+            //remove previous event listener, else it crop all objects
             if (crop.eventListener){
                 crop.removeEventListener('click', crop.eventListener);
             }
