@@ -12,10 +12,41 @@
 	};
 
 	function setShapeToolbar(shapejs){
+		var canvas = shapejs.canvas;
 
+		var shapes = document.createElement('li');
+		var square = ShapeJS.util.createHTMLElement('<a><i class="fa fa-square"></i></a>');
+		var circle = ShapeJS.util.createHTMLElement('<a><i class="fa fa-circle"></i></a>');
+		var arrow = ShapeJS.util.createHTMLElement('<a><i class="fa fa-long-arrow-left"></i></a>');
 
+		ShapeJS.util.appendMultipleChildren(shapes, [
+			square, circle, arrow
+		]);
+
+		square = ShapeJS.util.createButton(square);
+		square.addEventListener('click', function(e){
+			canvas.add(new fabric.Rect({
+				width: 50,
+				height: 50,
+				left: canvas.width/2,
+				top: canvas.height/2,
+				fill: shapejs.toolbox.colorInput.value
+			}));
+		});
+
+		circle = ShapeJS.util.createButton(circle);
+		circle.addEventListener('click', function(e){
+			canvas.add(new fabric.Circle({
+				radius: 30,
+				left: canvas.width/2,
+				top: canvas.height/2,
+				fill: shapejs.toolbox.colorInput.value
+			}));
+		});
+
+		shapejs.addSubToolbarActions(shapes, 'shapes');		
 	}
-	
+
 	ShapeJS.plugins['shapes'] = function(shapejs, options){
 		var canvas = shapejs.canvas;
 
@@ -66,6 +97,6 @@
 		}
 
 		shapejs.addToolboxButton(shapesBtn, 'shape');
-		shapejs.addToolboxButton(strokeBtn, 'stroke');
+		//shapejs.addToolboxButton(strokeBtn, 'stroke');
 	};
 }())
