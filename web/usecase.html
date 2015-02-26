@@ -1,0 +1,202 @@
+#if( $displayContext == "edit" )
+
+	<script src="core/javascripts/vendor/fabric.js/fabric.min.js"></script>
+	<script src="core/javascripts/ShapeJS/Shape.js"></script>
+	<link rel="stylesheet" type="text/css" href="core/javascripts/ShapeJS/Shape.css" />
+	
+	<div style="border: 1px solid #aaa">
+		<br>
+		<div class="form-group">
+			<label>Image Tag:</label>
+			<input class="form-control-md" id="tag_${field.id}">
+		</div>
+		<div class="" id="${field.id}" > </div>
+		<input type="hidden" id="input_${field.id}" name="${field.name}" value='' />
+	</div>
+	
+	<script type="text/javascript">
+			
+		//self function for proper scoping
+		(function(){
+			
+			//get value and set input
+			var inputVal = '${field.value}'
+			var input = document.getElementById("input_${field.id}");
+			input.value = inputVal;
+			
+			//decode values for use
+			var valueObj = Ext.decode(inputVal);
+			
+			var queryTag = document.getElementById("tag_${field.id}");
+			queryTag.value = valueObj.queryTag;
+			queryTag.onchange = function(){
+				updateInput();
+			}
+			
+			//update the input for form submission, shape1 (ShapeJS Object) is defined below
+			//canvas object changes as a whole everytime, must recreate it
+			function updateInput(){
+				valueObj.queryTag = queryTag.value;
+
+				valueObj.canvas = {};
+
+				valueObj.canvas.imageAsText = shape1.canvas.toDataURL({
+					format: 'png'
+				});
+				valueObj.canvas.serial = JSON.stringify(shape1.canvas);
+
+				valueObj.canvas.width = shape1.canvas.width;
+				valueObj.canvas.height = shape1.canvas.height;
+
+				valueObj.canvas = JSON.stringify(valueObj.canvas);
+				if (valueObj.canvas.indexOf(valueObj.servletUrl) != -1){
+					//servlet context can change whenever
+					var find = valueObj.servletUrl;
+					var reg = new RegExp(find, 'g');
+					str = str.replace(reg, '{servletUrl}');
+				}
+
+				input.value = JSON.stringify(valueObj);
+			}
+			
+			//Everything but the canvas object should exist on the "first" create
+			if (!valueObj.canvas){
+				valueObj.canvas = {};
+			}else{
+				//it is sent in as a string, and it comes back as a string
+				valueObj.canvas = JSON.parse(valueObj.canvas);
+			}
+			
+			//prepare and setup manipulator View
+			var container = document.getElementById("${field.id}");
+			var shapeId = 'shapejs_${field.id}';
+			var shape1;
+			var str = "";
+			var serialize = false;
+			
+			if (valueObj.canvas.serial && JSON.stringify(valueObj.canvas.serial).indexOf('fileId') != -1){
+				//this is because servlet context can change whenever
+				var find = '{servletUrl}';
+				var reg = new RegExp(find, 'g');
+				str = str.replace(reg, valueObj.servletUrl);
+				
+				serialize = true;
+			}
+			
+			if (!valueObj.fileId){
+				str += '<a class="btn btn-primary btn-md" href="'+valueObj.servletUrl+"?cmd=new&entityType=IMAGE&entityId="+valueObj.entityId+"&attributeId="+valueObj.attributeId+'">Load Image</a>';
+			
+				container.innerHTML = str;
+			}else{
+				str += '<a class="btn btn-primary btn-md" href="'+valueObj.servletUrl+"?cmd=new&entityType=IMAGE&entityId="+valueObj.entityId+"&attributeId="+valueObj.attributeId+'">Upload New Image</a>';
+				str +=	'<br><br>';
+				str += '<img id="'+shapeId+'" border="none" src="image?fileId='+valueObj.fileId+'">';
+			
+				container.innerHTML = str;
+			
+				//init on the View and configure
+				shape1 = new ShapeJS({
+					initObjects: [],
+					plugins: {
+					},
+					canvas:{
+						width: valueObj.canvas.width,
+						height: valueObj.canvas.height,
+						rescale: true
+					},
+					afterRender: function(shapejs){
+						if (serialize){
+							shapejs.disableHistoryStackChange = true;
+							shapejs.canvas.loadFromJSON(valueObj.canvas.serial, function(){
+								shapejs.canvas.renderAll();
+								disableHistoryStackChange = false;
+							});
+						}
+						
+						//on submit disable selections
+						shapejs.container.addEventListener('blur', function(){
+							shapejs.canvas.deactivateAll().renderAll();
+						});
+						//when submit is clicked, update the input	
+						shapejs.container.addEventListener('blur', updateInput);
+					}
+				}, "#"+shapeId);
+				
+				
+				
+				/*
+				--Because there is an issue with image and sessions in the LIMS
+				--The request does not get the session, therefor have the browser load the image
+				
+				--This also solves the cloning (copy -> paste plugin) issue because 
+				that piece of code uses fromObject as well. (v1.4.3)
+				*/
+				
+				fabric.Image.fromObject = function(object, callback){
+					var newImg = new Image();
+					newImg.onload = function(){
+						shape1.disableHistoryStackChange = true;
+						fabric.Image.prototype._initFilters.call(object, object, function(filters) {
+					        object.filters = filters || [ ];
+					        var instance = new fabric.Image(newImg, object);
+					        callback && callback(instance);
+					        
+				   			shape1.disableHistoryStackChange = false;
+				   		});
+					}
+					newImg.src = object.src;
+				}
+			}
+		}());
+	</script>
+
+#elseif( $displayContext == "create" )
+
+	<label>Image File Associated After Entity is Created</label>
+
+#elseif( $displayContext == "display" )
+
+	<script src="core/javascripts/vendor/fabric.js/fabric.min.js"></script>
+	<script src="core/javascripts/ShapeJS/Shape.js"></script>
+	<link rel="stylesheet" type="text/css" href="core/javascripts/ShapeJS/Shape.css" />
+	<br>
+	<div class="form-group">
+		<label>Image Tag:</label>
+		<span id="tag_${field.id}"><span>
+	</div>
+	<div class="" id="${field.id}" > </div>
+	<script type="text/javascript">
+			
+		//self function for proper scoping
+		(function(){
+			var inputVal = '${field.value}'
+			var valueObj = Ext.decode(inputVal);
+			var shapeId = 'shapejs_${field.id}';
+			var container = document.getElementById("${field.id}");
+			
+			var queryTag = document.getElementById("tag_${field.id}");
+			queryTag.innerHTML = valueObj.queryTag;
+			
+			if (!valueObj.canvas){
+				valueObj.canvas = {};
+			}else{
+				valueObj.canvas = JSON.parse(valueObj.canvas);
+			}
+						
+			var str
+			if (valueObj.canvas.imageAsText){
+				str = '<img id="'+shapeId+'" border="none" height="'+valueObj.canvas.height+'px" width="'+valueObj.canvas.width+'px" src="'+valueObj.canvas.imageAsText+'">';
+			}else{
+				str = '<img id="'+shapeId+'" border="none" src="image?fileId='+valueObj.fileId+'">';
+			}
+			container.innerHTML = str;
+		}());
+	</script>
+#elseif( $displayContext == "query" )
+
+	//DONT IN JAVA IMPL CLASS, Follows same as String Impl
+#else
+
+    displayContext ${displayContext} not recognized 
+    
+#end

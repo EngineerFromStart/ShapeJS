@@ -131,6 +131,7 @@
                 cropEl.top = selectedEl.top + (offsetFracY*selectedEl.height);
                 selectedEl.scaleY = 1;
                 cropEl.height = cropEl.height/selectedElScaleY;
+
             }
 
             //scale the image back, cropEl not needed (removed later)

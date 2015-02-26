@@ -122,5 +122,70 @@
 
 		}
 		shapejs.addToolboxButton(primaryColor);
+
+		/*
+		 * add Canvas Resize Handler
+		 */
+
+		var isResizing = false;
+		var resizeContext;
+		function enableHandling(e){
+			isResizing = true;
+			resizeContext = this.className;
+		}
+		function resizeCanvas(e){
+			if (!isResizing){
+				return
+			}
+			
+			var element = shapejs.canvasDOM;
+			//loop through the parents of the element and get final offset
+			var elPositionX = 0;
+		    var elPositionY = 0;
+		    while(element) {
+		    	elPositionX += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+		    	elPositionY += (element.offsetTop - element.scrollTop + element.clientTop);
+		        element = element.offsetParent;
+		    }			
+		    var width = e.clientX - elPositionX;
+		    var height = e.clientY - elPositionY;
+
+		    if (resizeContext == "dragW"){
+		    	shapejs.canvas.setWidth(width);
+		    }else if(resizeContext == "dragH"){
+		    	shapejs.canvas.setHeight(height);
+		    }else{
+			    shapejs.canvas.setWidth(width);
+			    shapejs.canvas.setHeight(height);
+		    }
+		}	
+
+		function disableHandling(e){
+			isResizing = false;
+			resizeContext = null;
+		}
+		if (shapejs.options.canvas.rescale){
+			//add DOM for resize
+			var dragH = ShapeJS.util.createHTMLElement('<div class="dragH"></div>');
+			shapejs.canvas.wrapperEl.appendChild(dragH);
+			
+			var dragW = ShapeJS.util.createHTMLElement('<div class="dragW"></div>');
+			shapejs.canvas.wrapperEl.appendChild(dragW);
+			
+			var dragHW = ShapeJS.util.createHTMLElement('<div class="dragHW"></div>');
+			shapejs.canvas.wrapperEl.appendChild(dragHW);			
+			
+			dragH.addEventListener('mousedown', enableHandling);
+			dragW.addEventListener('mousedown', enableHandling);
+			dragHW.addEventListener('mousedown', enableHandling);
+			
+			document.addEventListener('mousemove', resizeCanvas);
+			document.addEventListener('mousemove', resizeCanvas);
+			document.addEventListener('mousemove', resizeCanvas);
+			
+			dragH.addEventListener('mouseup', disableHandling);
+			dragW.addEventListener('mouseup', disableHandling);
+			dragHW.addEventListener('mouseup', disableHandling);
+		}
 	}
 }());

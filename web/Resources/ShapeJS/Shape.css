@@ -13,6 +13,9 @@
 	-webkit-user-select: none;
 }
 
+.shapejs-container:focus{
+	outline: none;
+}
 
 .shapejs-container ul {
 	list-style: none;
@@ -174,9 +177,9 @@
 /* canvas */
 
 .shapejs-canvas-container{
-	width: 100%;
-	background-color: #F5F5F5;
-	padding: 40px;
+	position: relative;
+	left: 50px;
+	top: 5px;
 }
 
 .canvas-container{
@@ -189,6 +192,36 @@
 	margin: -1px;
 }
 
+/* canvas drag handles */
+.shapejs-canvas-container .dragH{
+	position: absolute;
+	bottom: -5px;
+	border-bottom: 1px dashed #888;
+	padding: 5px;
+	left: 0;
+	right: 0;
+	cursor: s-resize;
+}
+
+.shapejs-canvas-container .dragW{
+	position: absolute;
+	bottom: 0;
+	top: 0;
+	border-right: 1px dashed #888;
+	padding: 5px;
+	right: -5px;
+	cursor: e-resize;
+}
+
+.shapejs-canvas-container .dragHW{
+	position: absolute;
+	bottom: -5px;
+	border-right: 1px solid #888;
+	padding: 6px;
+	right: -5px;
+	cursor: se-resize;
+	border-bottom: 1px solid #888;
+}
 
 /*font-awesome css*/
 .fa-rotate-45 {
