@@ -25,27 +25,11 @@
     function setToolbar(shapejs){
         var canvas = shapejs.canvas;
 
-        var widthContainer = document.createElement('li');
-        var widthIcon = ShapeJS.util.createHTMLElement('<span>W <i class="fa fa-arrows-h"></i></span>');
-        var width = ShapeJS.util.createHTMLElement('<input style="width:60px" type="number"/>');
-        var heightContainer = document.createElement('li');
-        var heightIcon = ShapeJS.util.createHTMLElement('<span>H <i class="fa fa-arrows-v"></i></span>');
-        var height = ShapeJS.util.createHTMLElement('<input style="width:60px" type="number"/>');
-
         var cropContainer = document.createElement('li');
         crop = ShapeJS.util.createHTMLElement('<a><i class="fa fa-crop"></i>Crop</a>');
         cropContainer.appendChild(crop);
-        crop = ShapeJS.util.createButton(crop);
+        crop = ShapeJS.util.createButton(crop)
 
-        widthContainer.appendChild(widthIcon);
-        widthContainer.appendChild(width);
-
-        heightContainer.appendChild(heightIcon);
-        heightContainer.appendChild(height);
-
-
-        shapejs.addSubToolbarActions(widthContainer, 'width');
-        shapejs.addSubToolbarActions(heightContainer, 'height');
         shapejs.addSubToolbarActions(cropContainer, 'width');
     }
 
@@ -55,8 +39,25 @@
         var objectsOnScreen = null;
 
         var cropBtn = ShapeJS.util.createHTMLElement('<i class="fa fa-crop"></i>');
-        cropBtn = shapejs.createToolboxButton(cropBtn);
+        cropBtn = shapejs.createToolboxButton(cropBtn, {
+			alt:"Crop Object"
+		});
         shapejs.addToolboxButton(cropBtn, 'crop');
+        
+        //requireds adding the rectCrop back to the element because toObject breaks if not crop is made during an edit.
+        var totalObjs = canvas.getObjects();
+        for (var x = 0; x < totalObjs.length; x++){
+        	if (totalObjs[x].rectCrop){
+        		totalObjs[x].toObject = (function(toObject){
+        			var rectObject = totalObjs[x].rectCrop;
+                    return function() {
+                        return fabric.util.object.extend(toObject.call(this), {
+                            rectCrop: rectObject
+                        });
+                    };
+                })(totalObjs[x].toObject);
+        	}
+        }
         
         //Set toolbar and add function handler
         cropBtn.activate = function(){
@@ -99,6 +100,7 @@
             var selectedEl = this;
             var selectedElScaleX = null;
             var selectedElScaleY = null;
+            var selectedElAngle = null;
             //remove previous event listener, else it crop all objects
             if (crop.eventListener){
                 crop.removeEventListener('click', crop.eventListener);
@@ -108,6 +110,10 @@
             function setScalesForCrop(){
                 selectedElScaleX = selectedEl.scaleX;
                 selectedElScaleY = selectedEl.scaleY;
+                selectedElAngle = selectedEl.getAngle();
+
+                selectedEl.setAngle(0);
+
                 /*
                 set and scale the Left and width to original 
                 creation event of selected object, also match crop element
@@ -138,6 +144,7 @@
             function inverseScalesFromCrop(){
                 selectedEl.scaleX = selectedElScaleX;
                 selectedEl.scaleY = selectedElScaleY;
+                selectedEl.setAngle(selectedElAngle);
             }
 
             function cropClick(event){
@@ -187,7 +194,6 @@
                         console.error(e);
                         return;
                     }
-                   
                 };
 
                 inverseScalesFromCrop();

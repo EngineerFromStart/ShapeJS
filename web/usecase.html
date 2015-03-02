@@ -19,13 +19,10 @@
 		//self function for proper scoping
 		(function(){
 			
-			//get value and set input
-			var inputVal = '${field.value}'
+			//get and set input value
+			var valueObj = ${field.value};
 			var input = document.getElementById("input_${field.id}");
-			input.value = inputVal;
-			
-			//decode values for use
-			var valueObj = Ext.decode(inputVal);
+			input.value = valueObj;
 			
 			var queryTag = document.getElementById("tag_${field.id}");
 			queryTag.value = valueObj.queryTag;
@@ -47,42 +44,23 @@
 
 				valueObj.canvas.width = shape1.canvas.width;
 				valueObj.canvas.height = shape1.canvas.height;
-
-				valueObj.canvas = JSON.stringify(valueObj.canvas);
-				if (valueObj.canvas.indexOf(valueObj.servletUrl) != -1){
+				
+				if (valueObj.canvas.serial.indexOf(APPDIR) != -1){
 					//servlet context can change whenever
-					var find = valueObj.servletUrl;
-					var reg = new RegExp(find, 'g');
-					str = str.replace(reg, '{servletUrl}');
+					var regToServlet = new RegExp(APPDIR, 'g');
+					valueObj.canvas.serial = valueObj.canvas.serial.replace(regToServlet, '{servletUrl}');
 				}
-
+				
 				input.value = JSON.stringify(valueObj);
 			}
-			
-			//Everything but the canvas object should exist on the "first" create
-			if (!valueObj.canvas){
-				valueObj.canvas = {};
-			}else{
-				//it is sent in as a string, and it comes back as a string
-				valueObj.canvas = JSON.parse(valueObj.canvas);
-			}
-			
+						
 			//prepare and setup manipulator View
 			var container = document.getElementById("${field.id}");
 			var shapeId = 'shapejs_${field.id}';
 			var shape1;
 			var str = "";
 			var serialize = false;
-			
-			if (valueObj.canvas.serial && JSON.stringify(valueObj.canvas.serial).indexOf('fileId') != -1){
-				//this is because servlet context can change whenever
-				var find = '{servletUrl}';
-				var reg = new RegExp(find, 'g');
-				str = str.replace(reg, valueObj.servletUrl);
-				
-				serialize = true;
-			}
-			
+						
 			if (!valueObj.fileId){
 				str += '<a class="btn btn-primary btn-md" href="'+valueObj.servletUrl+"?cmd=new&entityType=IMAGE&entityId="+valueObj.entityId+"&attributeId="+valueObj.attributeId+'">Load Image</a>';
 			
@@ -93,6 +71,22 @@
 				str += '<img id="'+shapeId+'" border="none" src="image?fileId='+valueObj.fileId+'">';
 			
 				container.innerHTML = str;
+
+				//Everything but the canvas object should exist on the "first" create
+				if (!valueObj.canvas){
+					valueObj.canvas = {};
+				}else{
+					//it is sent in as a string, and it comes back as a string
+					valueObj.canvas = JSON.parse(valueObj.canvas);
+				}
+
+				if (valueObj.canvas.serial && JSON.stringify(valueObj.canvas.serial).indexOf('fileId') != -1){
+					//this is because servlet context can change whenever
+					var regFromServlet = new RegExp('{servletUrl}', 'g');
+					valueObj.canvas.serial =  valueObj.canvas.serial.replace(regFromServlet, APPDIR);
+					
+					serialize = true;
+				}
 			
 				//init on the View and configure
 				shape1 = new ShapeJS({
@@ -114,9 +108,9 @@
 						}
 						
 						//on submit disable selections
-						shapejs.container.addEventListener('blur', function(){
+						/*shapejs.container.addEventListener('blur', function(){
 							shapejs.canvas.deactivateAll().renderAll();
-						});
+						});*/
 						//when submit is clicked, update the input	
 						shapejs.container.addEventListener('blur', updateInput);
 					}
@@ -169,8 +163,7 @@
 			
 		//self function for proper scoping
 		(function(){
-			var inputVal = '${field.value}'
-			var valueObj = Ext.decode(inputVal);
+			var valueObj = ${field.value};
 			var shapeId = 'shapejs_${field.id}';
 			var container = document.getElementById("${field.id}");
 			
@@ -183,7 +176,7 @@
 				valueObj.canvas = JSON.parse(valueObj.canvas);
 			}
 						
-			var str
+			var str = "No Image Attached";
 			if (valueObj.canvas.imageAsText){
 				str = '<img id="'+shapeId+'" border="none" height="'+valueObj.canvas.height+'px" width="'+valueObj.canvas.width+'px" src="'+valueObj.canvas.imageAsText+'">';
 			}else{

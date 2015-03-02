@@ -44,6 +44,23 @@
 			}));
 		});
 
+		arrow = ShapeJS.util.createButton(arrow);
+		arrow.addEventListener('click', function(){
+			canvas.add(new fabric.Polygon([
+				{x: 20, y: 0},
+				{x: 20, y: 15},
+				{x: 60, y: 15},
+				{x: 60, y: 30},
+				{x: 20, y: 30},
+				{x: 20, y: 45},
+				{x: 0, y: 23},
+				{x: 20, y: 0}], {
+				left: canvas.width/2,
+				top: canvas.height/2,
+				fill: shapejs.toolbox.colorInput.value
+			}));
+		});
+
 		shapejs.addSubToolbarActions(shapes, 'shapes');		
 	}
 
@@ -62,7 +79,9 @@
 		shapesCirc.style.left = '40%';
 		shapesCirc.style.fontSize = '16px';
 		shapesBtn.appendChild(shapesCirc);
-		shapesBtn = shapejs.createToolboxButton(shapesBtn);
+		shapesBtn = shapejs.createToolboxButton(shapesBtn, {
+			alt:"Add Shapes"
+		});
 
 		shapesBtn.activate = function(){
 			shapejs.clearSubToolbarActions();
@@ -70,7 +89,7 @@
 		}
 
 		shapesBtn.deactivate = function(){
-			shapejs.clearSubToolbarActions;
+			shapejs.clearSubToolbarActions();
 		}
 
 		/* STROKE */
@@ -84,7 +103,9 @@
 		strokeBtnObj.style.left = '21%';
 		strokeBtnObj.style.fontSize = '14px';
 		strokeBtn.appendChild(strokeBtnObj);
-		strokeBtn = shapejs.createToolboxButton(strokeBtn);//creates an element wrapped in <li>	
+		strokeBtn = shapejs.createToolboxButton(strokeBtn, {
+			alt:"Add Stroke"
+		});//creates an element wrapped in <li>	
 
 		//Stroke button handlers
 		strokeBtn.activate = function(){

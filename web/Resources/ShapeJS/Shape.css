@@ -231,3 +231,51 @@
     -o-transform: rotate(45deg) !important;
     transform: rotate(45deg) !important;
 }
+
+
+
+/* UTIL CSS */
+.button{
+	position:relative;
+}
+.button .button-tooltip{
+	display:none;
+	position:absolute;
+	padding:5px;
+	background-color: #FFF;
+	border: 1px solid;
+	z-index: 9999;
+}
+
+.button .button-tooltip.right{
+	left: 100%;
+	top: 0px;
+	margin-left: 5px;
+}
+
+.button:hover .button-tooltip{
+	display:block;
+}
+
+.dropdown{
+	position:relative;
+}
+
+.dropdown .dropbox{
+	position:absolute;
+	display:none;
+	left: 100%;
+	top:0;
+	background-color: #EEE;
+	padding: 5px;
+	border: 1px solid #CCC;
+}
+.dropdown .dropbox li{
+	padding: 2px 10px;
+}
+.dropdown .dropbox li:hover{
+	background-color: #CCC;
+}
+.dropdown:hover .dropbox{
+	display:block;
+}

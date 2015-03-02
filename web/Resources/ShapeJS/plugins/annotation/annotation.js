@@ -142,7 +142,7 @@
 			slider.appendChild(ShapeJS.util.createHTMLElement('<i class="fa fa-arrows-v"></i>'));
 			
 			var sliderVal = 5;
-			var sliderInput = ShapeJS.util.createHTMLElement('<input type="range" value="'+sliderVal+'" min="0" max="150">')
+			var sliderInput = ShapeJS.util.createHTMLElement('<input type="range" value="'+sliderVal+'" min="0" max="75">')
 			sliderInput.style.verticalAlign = 'middle';
 			slider.appendChild(sliderInput);
 
@@ -191,7 +191,9 @@
 
 		var brushBtn = '<i class="fa fa-pencil"></i>';
 		brushBtn = ShapeJS.util.createHTMLElement(brushBtn);
-		brushBtn = shapejs.createToolboxButton(brushBtn);
+		brushBtn = shapejs.createToolboxButton(brushBtn, {
+			alt:"Annotate"
+		});
 
 
 		//set main buttons handlers

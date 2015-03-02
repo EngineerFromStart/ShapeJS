@@ -7,9 +7,9 @@
 		var options = shapejs.options;
 		var canvas = shapejs.canvas;
 
-		/*
-			Load font-awesome library from the path set
-		*/
+		//=======================================================
+		//======Load font-awesome library from the path set======
+		//=======================================================
 		var fontLib = options['font-awesome-path'];
 		var link = document.createElement('link');
 		link.rel = "stylesheet"
@@ -20,9 +20,16 @@
 		}
 		ShapeJS.util.getElement('head').appendChild(link);
 
-		/*
-			add basic actions for the canvas
-		*/
+		
+		//
+		//auto select newly added objects
+		canvas.on('object:added', function(options){
+			canvas.setActiveObject(options.target);
+		});
+		
+		//=======================================================
+		//=============add basic actions for the canvas==========
+		//=======================================================
 		/* Create File Action */
 		var file = shapejs.toolbar.fileActions = document.createElement('ul');
 		shapejs.addToolbarActions(shapejs.createToolbarActions('File', file));
@@ -37,11 +44,13 @@
 		file.appendChild(document.createElement('hr'));
 
 		var importBtn = ShapeJS.util.createHTMLElement('<li>Import</li>');
-		ShapeJS.util.createButton(importBtn);
-		file.appendChild(importBtn);
+		//file.appendChild(importBtn);
+		importBtn = ShapeJS.util.createButton(importBtn);
+		importBtn.disable(true);
 		
 		var exportBtn = ShapeJS.util.createHTMLElement('<li>Export PNG</li>');
-		ShapeJS.util.createButton(exportBtn);
+		file.appendChild(exportBtn);
+		exportBtn = ShapeJS.util.createButton(exportBtn);
 		if (!fabric.Canvas.supports('toDataURL')) {
       		exportBtn.disable(true);
     	}
@@ -49,18 +58,17 @@
 			window.open(canvas.toDataURL('png'));
 			// window.open('data:image/svg+xml;utf8,'+encodeURIComponent(canvas.toSVG())); //SVG
 		});
-		file.appendChild(exportBtn);
 
 		/* Create Edit Actions */
 		var edit = shapejs.toolbar.editActions = document.createElement('ul');
 		shapejs.addToolbarActions(shapejs.createToolbarActions('Edit', edit));
 
 		var removeBtn = ShapeJS.util.createHTMLElement('<li>Remove object<span class="shapejs-short-cut">Del</span></li>');
-		ShapeJS.util.createButton(removeBtn);
+		edit.appendChild(removeBtn);
+		removeBtn = ShapeJS.util.createButton(removeBtn);
 		removeBtn.addEventListener('click', function(){
 			removeObj();
 		})
-		edit.appendChild(removeBtn);
 		edit.appendChild(document.createElement('hr'));
 
 		/* Create View Actions */
@@ -68,7 +76,7 @@
 		shapejs.addToolbarActions(shapejs.createToolbarActions('View', view));
 		
 		
-		function removeObj(){
+		function removeObj(e){
 			if(canvas.getActiveGroup()){
 	        	canvas.getActiveGroup().forEachObject(function(o){
 	        		canvas.remove(o) 
@@ -77,11 +85,12 @@
 		    }else if(canvas.getActiveObject()){
 	        	canvas.remove(canvas.getActiveObject());
 		    }
+			e.preventDefault();
 		};
 
-		/*
-			Allow key handler features on the shapejs object in focus
-		*/
+		//============================================================
+		//=Allow key handler features on the shapejs object in focus==
+		//============================================================
 		shapejs.keyHandles = {
 			8: removeObj,//backspace
 			46: removeObj//delete
@@ -102,9 +111,9 @@
 			}
 		}
 
-		/*
-			add color input to toolbox
-		*/
+		//=======================================================
+		//================add color input to toolbox=============
+		//=======================================================
 		shapejs.toolbox.colorInput = '<input style="width:25px" type="color" value="#000000">';
 		shapejs.toolbox.colorInput = ShapeJS.util.createHTMLElement(shapejs.toolbox.colorInput);
 		shapejs.toolbox.colorInput.addEventListener('change', function(){
@@ -123,10 +132,9 @@
 		}
 		shapejs.addToolboxButton(primaryColor);
 
-		/*
-		 * add Canvas Resize Handler
-		 */
-
+		//=======================================================
+		//================add Canvas Resize Handler==============
+		//=======================================================
 		var isResizing = false;
 		var resizeContext;
 		function enableHandling(e){

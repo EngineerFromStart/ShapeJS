@@ -182,7 +182,9 @@
 		*/
 		var textBtn = '<i class="fa fa-font"></i>';
 		textBtn = ShapeJS.util.createHTMLElement(textBtn);
-		textBtn = shapejs.createToolboxButton(textBtn);//creates an element wrapped in <li>	
+		textBtn = shapejs.createToolboxButton(textBtn, {
+			alt:"Add Text"
+		});//creates an element wrapped in <li>	
 
 		textBtn.activate = function(){
 			canvas.isTextMode = true;

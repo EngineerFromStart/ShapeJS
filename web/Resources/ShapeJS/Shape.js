@@ -70,6 +70,7 @@
 				'base': {
 					//'path':"../bla.js" 
 				},
+				'adjustments':{},
 				'history':{},
 				'SCCP':{},//Select , Cut, Copy, Paste
 				'crop':{},
@@ -141,8 +142,8 @@
 			container.appendChild(this.canvasContainer);
 
 			this.canvasDOM = document.createElement('Canvas');
-			this.canvasDOM.width = this.options.canvas.width;
-			this.canvasDOM.height = this.options.canvas.height;
+			this.canvasDOM.width = this.options.canvas.width || 200;//if they forget to pass in width
+			this.canvasDOM.height = this.options.canvas.height || 200;//if they forget to pass in height
 			this.canvasContainer.appendChild(this.canvasDOM);
 			//canvas has to exist on page before fabric canvas object creation
 			this.replaceEl.parentNode.replaceChild(container, this.replaceEl);
@@ -266,13 +267,13 @@
 		/*
 		
 		*/
-		createToolboxButton: function(element){
+		createToolboxButton: function(element, extras){
 			var _this = this;
 			var el = document.createElement('li');
 			el.appendChild(element);
 			
 			//make it a button that holds the element
-			var btn = ShapeJS.util.createButton(el);
+			var btn = ShapeJS.util.createButton(el, extras);
 
 			btn.addEventListener('click', function(event){
 				//deactivate all items and change element class
@@ -390,11 +391,22 @@
 
 		/*
 		*/
-		createButton: function(element){
-			function Button(el){
+		createButton: function(element, extras){
+			function Button(el, extras){
 				this.element = el;
 				this.active = false;
 				this.dropdown = null;
+				
+				el.classList.add('button');
+				if (extras){
+					if (extras.alt) {
+						var altTag = document.createElement('span');
+						altTag.classList.add('button-tooltip');
+						altTag.classList.add('right');
+						altTag.innerHTML = extras.alt;
+						el.appendChild(altTag);
+					}
+				}
 			}
 
 			Button.prototype = {
@@ -446,7 +458,7 @@
 		    		this.dropdown.appendChild(el);
 		    	}
 			}
-			return new Button(element);
+			return new Button(element, extras);
 		},
 		
 		createButtonGroup: function(buttons, options){
