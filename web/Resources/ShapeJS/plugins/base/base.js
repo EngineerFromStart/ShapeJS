@@ -73,7 +73,7 @@
 
 		/* Create View Actions */
 		var view = shapejs.toolbar.viewActions = document.createElement('ul');
-		shapejs.addToolbarActions(shapejs.createToolbarActions('View', view));
+		//shapejs.addToolbarActions(shapejs.createToolbarActions('View', view));
 		
 		
 		function removeObj(e){
@@ -85,14 +85,22 @@
 		    }else if(canvas.getActiveObject()){
 	        	canvas.remove(canvas.getActiveObject());
 		    }
-			e.preventDefault();
+		};
+		
+		function disableBack(e){
+			var target = (e.target) ? e.target : e.srcElement;
+			if (e.keyCode === 8){
+		        if ((target.tagName.toLowerCase() != "input" && target.tagName.toLowerCase() != "textarea") && target !== undefined) {
+					e.preventDefault();
+		        }
+			}
 		};
 
 		//============================================================
 		//=Allow key handler features on the shapejs object in focus==
 		//============================================================
 		shapejs.keyHandles = {
-			8: removeObj,//backspace
+			8: disableBack,//backspace
 			46: removeObj//delete
 		}
 
@@ -110,27 +118,6 @@
 
 			}
 		}
-
-		//=======================================================
-		//================add color input to toolbox=============
-		//=======================================================
-		shapejs.toolbox.colorInput = '<input style="width:25px" type="color" value="#000000">';
-		shapejs.toolbox.colorInput = ShapeJS.util.createHTMLElement(shapejs.toolbox.colorInput);
-		shapejs.toolbox.colorInput.addEventListener('change', function(){
-			canvas.getActiveObject().set('fill', this.value);
-			canvas.renderAll();
-		});
-		canvas.on('object:selected', function(options){
-			shapejs.toolbox.colorInput.value = options.target.get('fill');
-		});
-		var primaryColor = shapejs.createToolboxButton(shapejs.toolbox.colorInput);
-		primaryColor.activate = function(){
-
-		}
-		primaryColor.deactivate = function(){
-
-		}
-		shapejs.addToolboxButton(primaryColor);
 
 		//=======================================================
 		//================add Canvas Resize Handler==============

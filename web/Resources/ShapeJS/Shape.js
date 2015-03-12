@@ -64,7 +64,7 @@
 				rescale: 'auto'
 			},
 			shapejsPath: scriptJSPath,
-			pluginPath:scriptJSPath+'plugins',
+			pluginPath: scriptJSPath+'plugins',
 			debug: false,
 			defaultPlugins: {
 				'base': {
@@ -73,10 +73,12 @@
 				'adjustments':{},
 				'history':{},
 				'SCCP':{},//Select , Cut, Copy, Paste
-				'crop':{},
+				'cropV2':{},
+				'align':{},
 				'annotation':{},
 				'text':{},
-				'shapes':{}
+				'shapes':{},
+				'color':{}
 			},
 			'font-awesome-path':'default',
 			afterRender: function(shapejs){
@@ -93,10 +95,9 @@
 		and instatiating multiple elements from the options initObjects
 		- Init the Plugins after the core creation
 		*/
-		init: function(options, replaceEl){
+		init: function(options, replaceEl){			
 			var _this = this;
 			this.options = ShapeJS.util.extend(options, this.defaults);
-
 			if (replaceEl && typeof replaceEl === "string"){
 				this.replaceEl = document.querySelector(replaceEl);
 				if (this.replaceEl.nodeName.toLowerCase() == "img"){
@@ -104,11 +105,11 @@
 					//canvas must load after the image is loaded, else canvas gets blank image
 					img.onload = function(){
 						_this.options.initObjects.unshift(new fabric.Image(img));
-						_this.initDOM().initPlugins().options.afterRender(_this);
+						_this.initDOM().initPlugins();
 					};
 					img.src = this.replaceEl.src;//load the image
 				}else{
-					this.initDOM().initPlugins().options.afterRender(this);
+					this.initDOM().initPlugins();
 				}
 			}else{
 				throw "Must provide replacement element String"
@@ -166,7 +167,10 @@
 
 			var initObjects = this.options.initObjects;
 			for (var i = 0; i < initObjects.length; i++){
-				var coords = ShapeJS.util.getCoords(this.canvas.width, initObjects[i].getWidth());
+				var coords = ShapeJS.util.getCoords(
+						this.canvas.width < this.canvas.height ? this.canvas.width : this.canvas.height,
+						initObjects[i].getWidth()
+				);
 				initObjects[i].set({
 					left: coords.left,
 					top: coords.top
@@ -226,19 +230,26 @@
 				}
 				//load js file, once file is loaded, instatiate it and move to next one
 				util.loadJSFile(pathToPlugin, function(){
-					//all_plugins_arr[index] = new _this.Plugin(name);
-					//all_plugins_arr[index].init(_this,  _this.options.plugins[name]);
-					ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
+					try{
+						ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
+					}catch(e){
+						console.group("Could not load the plugin: '%s'", name);
+						console.error(e.name);
+						console.error(e.message);
+						console.error(e.stack);
+						console.groupEnd();
+					}					
 
 					if (index < all_plugins_arr.length - 1){
 						index++;
 						loadJS(index);
+					}else{
+						_this.options.afterRender(_this);
 					}
 				});
 			}
 
 			loadJS(index);
-			return this;
 		},
 
 		//==============================================================================
@@ -421,9 +432,14 @@
 		    	disable: function(value){
 		    		this.element.disabled = (value) ? true : false;
 		    	},
-		    	trigger: function(eventName){
+		    	trigger: function(eventName, callback){
 		    		var el = this.element;
-				    return el[eventName]();
+		    		var returnVal = el[eventName]();
+		    		
+		    		//if trigger callback is set, it is run and returned instead
+		    		if (callback) return callback();
+		    		
+				    return returnVal;
 		    	},
 		    	addDropDown: function(dropdown, direction){
 		    		var el = this.element;

@@ -30,7 +30,7 @@
         cropContainer.appendChild(crop);
         crop = ShapeJS.util.createButton(crop)
 
-        shapejs.addSubToolbarActions(cropContainer, 'width');
+        shapejs.addSubToolbarActions(cropContainer, 'crop');
     }
 
     ShapeJS.plugins['crop'] = function(shapejs, options){
@@ -56,6 +56,7 @@
                         });
                     };
                 })(totalObjs[x].toObject);
+        		
         	}
         }
         
@@ -80,9 +81,14 @@
             for (var i = 0; i < objectsOnScreen; i++){
                 canvas.item(i).on('selected', cropFn);
             }
+            
+            if (canvas.getActiveObject()){
+            	cropFn.apply(canvas.getActiveObject());
+            }
         }
 
         function endObjectCrop(){
+        	//remove the add cropEl function
             for (var i = 0; i < objectsOnScreen; i++){
                 canvas.item(i).off('selected', cropFn);
             }
@@ -198,6 +204,8 @@
 
                 inverseScalesFromCrop();
                 canvas.renderAll();
+                
+                //turn crop off
                 cropBtn.trigger('click');                
             };
 
@@ -218,28 +226,5 @@
             crop.addEventListener('click', cropClick);
             crop.eventListener = cropClick;
         };
-
-        //TODO add crop canvas functionality to edit drop down
-        /*
-
-        else {
-            if (confirm("Crop Canvas?")){
-                canvas.toObject = (function(toObject){
-                    return function() {
-                        return fabric.util.object.extend(toObject.call(this), {
-                            rectCrop: getRectCrop()
-                        });
-                    };
-                })(canvas.toObject);
-
-                canvas.rectCrop = getRectCrop();
-                
-                canvas.clipTo = function(ctx){
-                    var rectCrop = this.rectCrop;
-                    ctx.rect(rectCrop.left, rectCrop.top, rectCrop.width, rectCrop.height);
-                }
-            };
-        }
-        */
     };
 }());

@@ -100,7 +100,7 @@
 			var smallSize = ShapeJS.util.createHTMLElement('<a><i class="fa fa-font"></i></a>');
 			smallSize.style.fontSize = "10px";
 			var bigSize = ShapeJS.util.createHTMLElement('<a><i class="fa fa-font"></i></a>');
-			bigSize.style.fontSize = "15px";
+			bigSize.style.fontSize = "14px";
 			var size = ShapeJS.util.createHTMLElement('<select></select>');
 			for (var x = 16; x <= 60; x++){
 				size.appendChild(ShapeJS.util.createHTMLElement('<option value="'+x+'">'+x+'</option>'));
@@ -143,12 +143,16 @@
 			/* Text Change and Text Object */
 			var text = ShapeJS.util.createHTMLElement('<li></li>');
 			var textArea = ShapeJS.util.createHTMLElement('<textarea></textarea>');
+			
+			if (canvas.getActiveObject() && (canvas.getActiveObject().type == 'i-text' || canvas.getActiveObject().type == 'text')){
+				textArea.value = canvas.getActiveObject().get('text');
+			}
 			canvas.on('object:selected', function(options){
-				if (options.target.type == 'text'){
+				if (options.target.type == 'i-text' || options.target.type == 'text'){
 					textArea.value = options.target.get('text');
 				}
 			});
-			textArea.addEventListener('change', function(e){
+			textArea.addEventListener('keyup', function(e){
 				shapejs.setActiveObjectProp('text', this.value);
 			});
 			var textAdd = ShapeJS.util.createHTMLElement('<a><i class="fa fa-plus"></i></a>');
@@ -158,13 +162,14 @@
 			function getTextSpecs(){
 				return {
 					fontFamily: fontFamily.value,
-					fontSize: size.value
+					fontSize: size.value,
+					fill: shapejs.toolbox.colorInput.value
 				}
 			}
 			textAdd.addEventListener('click', function(event){
 				var txt = textArea.value;
 				var textSpecs = getTextSpecs();
-				canvas.add(new fabric.Text(txt, textSpecs));
+				canvas.add(new fabric.IText(txt, textSpecs));
 			});
 
 			shapejs.addSubToolbarActions(font, 'fontFamily');
@@ -200,7 +205,7 @@
 		shapejs.addToolboxButton(textBtn, 'text');
 
 		canvas.on('object:selected', function(options){
-			if (options.target.type == 'text'){
+			if (options.target.type == 'i-text' || options.target.type == 'text'){
 				if (!canvas.isTextMode){
 					textBtn.trigger('click');
 				}

@@ -39,6 +39,7 @@
 	//update the stack on object add/change/remove
 	//unless its from undo/redo, else the stack will overflow
 	function getState(shapejs, options){
+
 		if (!shapejs.disableHistoryStackChange){
 			//so the stack gets cleaned when changes are made after an undo
 			shapejs.historyStack = shapejs.historyStack.slice(0, shapejs.historyIndex+1);
@@ -46,6 +47,7 @@
 			var canvasJSON = JSON.stringify(shapejs.canvas);
 			shapejs.historyStack.push(canvasJSON);
 			shapejs.historyIndex += 1;
+			
 		}
 	}
 

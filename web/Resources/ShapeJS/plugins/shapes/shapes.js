@@ -30,7 +30,10 @@
 				height: 50,
 				left: canvas.width/2,
 				top: canvas.height/2,
-				fill: shapejs.toolbox.colorInput.value
+				fill: "rgba(0, 0, 0, 0)",
+				stroke: '#ff0000',
+ 	            strokeDashArray: [4, 4],
+ 	            borderColor: '#36fd00'
 			}));
 		});
 
@@ -40,7 +43,10 @@
 				radius: 30,
 				left: canvas.width/2,
 				top: canvas.height/2,
-				fill: shapejs.toolbox.colorInput.value
+				fill: "rgba(0, 0, 0, 0)",
+				stroke: '#ff0000',
+ 	            strokeDashArray: [4, 4],
+ 	            borderColor: '#36fd00'
 			}));
 		});
 
@@ -57,7 +63,10 @@
 				{x: 20, y: 0}], {
 				left: canvas.width/2,
 				top: canvas.height/2,
-				fill: shapejs.toolbox.colorInput.value
+				fill: shapejs.toolbox.colorInput.value,
+				stroke: '#ccc',
+ 	            strokeDashArray: [2, 2],
+ 	            borderColor: '#36fd00'
 			}));
 		});
 
@@ -73,7 +82,7 @@
 		shapesBtn.style.position = 'relative';
 		shapesBtn.style.fontSize = '18px';
 		shapesBtn.style.left = '-10%';
-		shapesCirc = ShapeJS.util.createHTMLElement('<i class="fa fa-circle-o"></i>');
+		shapesCirc = ShapeJS.util.createHTMLElement('<i class="fa fa-circle"></i>');
 		shapesCirc.style.position = 'absolute';
 		shapesCirc.style.top = '40%';
 		shapesCirc.style.left = '40%';

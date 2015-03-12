@@ -137,6 +137,10 @@
 			the Toolbar to set when button is invoked
 		*/
 		function setToolbar(){
+			shapejs.toolbox.colorInput.onchange = function(){
+				canvas.freeDrawingBrush.color = this.value;
+			}
+			
 			var slider = document.createElement('ul');
 			slider.innerHTML = "W ";
 			slider.appendChild(ShapeJS.util.createHTMLElement('<i class="fa fa-arrows-v"></i>'));
@@ -192,7 +196,7 @@
 		var brushBtn = '<i class="fa fa-pencil"></i>';
 		brushBtn = ShapeJS.util.createHTMLElement(brushBtn);
 		brushBtn = shapejs.createToolboxButton(brushBtn, {
-			alt:"Annotate"
+			alt:"Free Drawing"
 		});
 
 
@@ -209,13 +213,5 @@
 
 		shapejs.addToolboxButton(brushBtn, 'brush');
 		brushBtn.addDropDown(brushDrop);
-
-		//==============================================================
-		//===============set other annotation properties=================
-		//==============================================================
-
-		shapejs.toolbox.colorInput.onchange = function(){
-			canvas.freeDrawingBrush.color = this.value;
-		}
 	}
 }());
