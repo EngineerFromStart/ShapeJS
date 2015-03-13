@@ -121,6 +121,7 @@
 	function cut(shapejs){
 		var canvas = shapejs.canvas;
 		var copiedObjects = shapejs.copiedObjects = new Array();
+		
 		if (!shapejs.selectionEl){
 		    if(canvas.getActiveGroup()){
 	        	canvas.getActiveGroup().forEachObject(function(o){
@@ -135,13 +136,33 @@
 		    canvas.renderAll();
 		}else{
 			canvas.remove(shapejs.selectionEl);
-			var data = canvas.toDataURL({
+			
+			var selEl = shapejs.selectedEl;
+			
+			//get object wanting to copy and push to copiedObject
+			var data = shapejs.selectedEl.toDataURL({
 				format: 'png',
-				left: shapejs.selectionEl.left,
-				top: shapejs.selectionEl.top,
+				left: shapejs.selectionEl.left-selEl.left,
+				top: shapejs.selectionEl.top-selEl.top,
 				width: shapejs.selectionEl.width*shapejs.selectionEl.scaleX,
 				height: shapejs.selectionEl.height*shapejs.selectionEl.scaleY
 			})
+			
+			var newImg = new fabric.Image.fromURL(data, function(oImg){
+				copiedObjects.push(oImg);
+			});
+			
+			
+			//now hide all objects, create image from data url and show all objects again
+			var tempOpacities = [];
+			var canvasObjs = canvas.getObjects();
+			for (var x = 0; x < canvasObjs.length; x++){
+				tempOpacities.push(canvasObjs[x].getOpacity());
+				if (canvasObjs[x] != selEl)
+					canvasObjs[x].opacity = 0;
+			}
+			
+			canvas.renderAll();
 			
 			var context = canvas.getContext();
 			context.save();
@@ -151,15 +172,37 @@
 					shapejs.selectionEl.width*shapejs.selectionEl.scaleX,
 					shapejs.selectionEl.height*shapejs.selectionEl.scaleY);
 			context.restore();
+						
+			var origImgData = canvas.getElement().toDataURL();
 			
-			//change all opacity, and copy part of the object
-		      if (options.target.intersectsWithObject(obj)){
-		    	  obj._render(context);
-		      };
-			
-			var newImg = new fabric.Image.fromURL(data, function(oImg){
-				copiedObjects.push(oImg);
+			var newOrigCanvas = new fabric.Image.fromURL(origImgData, function(oImg){
+				var newOrigImgData = oImg.toDataURL({
+					format: 'png',
+					left: shapejs.selectedEl.left,
+					top: shapejs.selectedEl.top,
+					width: selEl.width*selEl.scaleX + 2*selEl.strokeWidth*selEl.scaleX,
+					height: selEl.height*selEl.scaleY + 2*selEl.strokeWidth*selEl.scaleY
+				})
+				
+				var newOrigImg = new fabric.Image.fromURL(newOrigImgData, function(newImg){					
+					newImg.left = selEl.left;
+					newImg.top = selEl.top;
+					
+					shapejs.disableHistoryStackChange = false;
+					canvas.insertAt(newImg, canvas.getObjects().indexOf(selEl), true);
+					shapejs.disableHistoryStackChange = true;
+					selEl = newImg;
+					
+					canvas.renderAll();
+				});				
 			});
+
+			for (var x = 0; x < canvasObjs.length; x++){
+				if (canvasObjs[x] != selEl)
+					canvasObjs[x].opacity = tempOpacities[x];
+			}
+			canvas.renderAll();
+			shapejs.disableHistoryStackChange = false;
 		}
 	}
 
@@ -288,7 +331,9 @@
 		var selection = '<div style="width:25px; height:25px; border: 1px dashed;"></div>';
 		selection = ShapeJS.util.createHTMLElement(selection);
 		
-		selection = shapejs.createToolboxButton(selection);
+		selection = shapejs.createToolboxButton(selection, {
+			alt:"Selection"
+		});
 				
 		selection.activate = function(){
 			canvas.isSelectionMode = true;
@@ -304,6 +349,6 @@
 			shapejs.clearSubToolbarActions();
 			canvas.isSelectionMode = false;
 		}
-		shapejs.addToolboxButton(selection);
+		shapejs.addToolboxButton(selection, 'selection');
 	}
 }());

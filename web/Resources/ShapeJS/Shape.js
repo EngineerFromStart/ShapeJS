@@ -78,7 +78,8 @@
 				'annotation':{},
 				'text':{},
 				'shapes':{},
-				'color':{}
+				'color':{},
+				'stroke':{}
 			},
 			'font-awesome-path':'default',
 			afterRender: function(shapejs){
@@ -169,7 +170,7 @@
 			for (var i = 0; i < initObjects.length; i++){
 				var coords = ShapeJS.util.getCoords(
 						this.canvas.width < this.canvas.height ? this.canvas.width : this.canvas.height,
-						initObjects[i].getWidth()
+						initObjects[i].getWidth() > initObjects[i].getHeight() ? initObjects[i].getWidth() : initObjects[i].getHeight()
 				);
 				initObjects[i].set({
 					left: coords.left,

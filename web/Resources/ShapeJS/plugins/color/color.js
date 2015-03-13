@@ -54,7 +54,7 @@
 			width: colorCanvas.width,
 			height: colorCanvas.height,
 			selectable: false,
-			opacity: .8
+			opacity: 1
 		})
 		
 		rect.setGradient('fill', {
@@ -79,7 +79,7 @@
 			width: colorCanvas.width,
 			height: colorCanvas.height,
 			selectable: false,
-			opacity: .9
+			opacity: 1
 		})
 		
 		rect2.setGradient('fill', {
@@ -155,7 +155,7 @@
     	//=======================================================
 		//================add color input to toolbox=============
 		//=======================================================
-		shapejs.toolbox.colorBox = '<div style="width:25px; height:25px;"></div>';
+		shapejs.toolbox.colorBox = '<div style="width:26px; height:26px;"></div>';
 		shapejs.toolbox.colorBox = ShapeJS.util.createHTMLElement(shapejs.toolbox.colorBox);
 		shapejs.toolbox.colorInput = '<input type="hidden" value="" />';
 		shapejs.toolbox.colorInput = ShapeJS.util.createHTMLElement(shapejs.toolbox.colorInput);
@@ -187,7 +187,9 @@
 			}
 		};
 		
-		var primaryColor = shapejs.createToolboxButton(shapejs.toolbox.colorBox);
+		var primaryColor = shapejs.createToolboxButton(shapejs.toolbox.colorBox, {
+			alt:"Object Color"
+		});
 				
 		primaryColor.activate = function(){
 			shapejs.clearSubToolbarActions();
@@ -196,6 +198,6 @@
 		primaryColor.deactivate = function(){
 			shapejs.clearSubToolbarActions();
 		}
-		shapejs.addToolboxButton(primaryColor);
+		shapejs.addToolboxButton(primaryColor, 'primaryColor');
     };
 }());

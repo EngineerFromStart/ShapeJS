@@ -44,6 +44,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
     function addCropEl(shapejs){
 		//add new one
 		shapejs.canvas.add(shapejs.tempCropEl);
+		shapejs.canvas.setActiveObject(shapejs.tempCropEl);
     }
 	
 	function removeCropEl(shapejs){

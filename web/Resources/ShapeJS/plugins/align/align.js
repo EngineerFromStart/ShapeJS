@@ -20,7 +20,12 @@
 		        	}else if (alignTo == 'bottom'){
 		        		if (!y || y < (curObj.top + curObj.height*curObj.scaleY)) y = curObj.top + curObj.height*curObj.scaleY;
 		        	}else if (alignTo == 'center'){
-		        		
+		        		if (!x) x = curObj.left + curObj.width*curObj.scaleX/2;
+		        		if (!y) y = curObj.top + curObj.height*curObj.scaleY/2;
+		        	}else if (alignTo == 'centerX'){
+		        		if (!x) x = curObj.left + curObj.width*curObj.scaleX/2;
+		        	}else if (alignTo == 'centerY'){
+		        		if (!y) y = curObj.top + curObj.height*curObj.scaleY/2;
 		        	}
 		        }
 		        for (var i in canvas.getActiveGroup().objects){
@@ -34,7 +39,12 @@
 		        	}else if (alignTo == 'bottom' && y){
 		        		curObj.top = y - curObj.height*curObj.scaleY;
 		        	}else if (alignTo == 'center'){
-		        		
+		        		curObj.left = x - curObj.width*curObj.scaleX/2
+		        		curObj.top = y - curObj.height*curObj.scaleY/2
+		        	}else if (alignTo == 'centerX'){
+		        		curObj.left = x - curObj.width*curObj.scaleX/2
+		        	}else if (alignTo == 'centerY'){
+		        		curObj.top = y - curObj.height*curObj.scaleY/2
 		        	}else{
 		        		throw "no alignment matched";
 		        	}
@@ -44,13 +54,18 @@
 		    	if (alignTo == 'left'){
 	        		curObj.left = 0;
 	        	}else if (alignTo == 'right'){
-	        		curObj.left = canvas.width - curObj.width*curObj.scaleX;
+	        		curObj.top = canvas.height - curObj.height*curObj.scaleY;
 	        	}else if (alignTo == 'top'){
 	        		curObj.top = 0;
 	        	}else if (alignTo == 'bottom'){
 	        		curObj.top = canvas.height - curObj.height*curObj.scaleY;
 	        	}else if (alignTo == 'center'){
-	        		
+	        		curObj.left = (curObj.width*curObj.scalex - canvas.width)/2;
+	        		curObj.top = (curObj.height*curObj.scaleY - canvas.height)/2;
+	        	}else if (alignTo == 'centerX'){
+	        		curObj.left = (curObj.width*curObj.scalex - canvas.width)/2;
+	        	}else if (alignTo == 'centerY'){
+	        		curObj.top = (curObj.height*curObj.scaleY - canvas.height)/2;
 	        	}else{
 	        		throw "no alignment matched";
 	        	}
@@ -62,19 +77,17 @@
 		var align = document.createElement('li');
 		var alignLeft = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-left"></i></a>');
 		var alignRight = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-right"></i></a>');
-		var alignCenter = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-center"></i></a>');
 		var alignTop = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-left fa-rotate-90"></i></a>');
 		var alignBottom = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-right fa-rotate-90"></i></a>');
 
 		ShapeJS.util.appendMultipleChildren(align, [
-			alignLeft, alignTop, alignBottom, alignRight, alignCenter
+			alignLeft, alignTop, alignBottom, alignRight
 		]);
 		
 		alignLeft.value = 'left';
 		alignTop.value = 'top';
 		alignBottom.value = 'bottom';
 		alignRight.value = 'right';
-		alignCenter.value = 'center';
 		
 		alignLeft = ShapeJS.util.createButton(alignLeft);
 		alignLeft.addEventListener('click', setObjectsAlign);
@@ -88,10 +101,30 @@
 		alignRight = ShapeJS.util.createButton(alignRight);
 		alignRight.addEventListener('click', setObjectsAlign);
 		
+		var alignCenters = document.createElement('li');
+		var alignCenterX = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-center"></i></a>');
+		var alignCenterY = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-center fa-rotate-90"></i></a>');
+		var alignCenter = ShapeJS.util.createHTMLElement('<a><i class="fa fa-align-justify"></i></a>');
+		
+		ShapeJS.util.appendMultipleChildren(alignCenters, [
+			alignCenterX, alignCenterY, alignCenter
+		]);
+
+		alignCenter.value = 'center';
+		alignCenterX.value = 'centerX';
+		alignCenterY.value = 'centerY';
+		
 		alignCenter = ShapeJS.util.createButton(alignCenter);
-		alignCenter.addEventListener('click', alignCenter);
+		alignCenter.addEventListener('click', setObjectsAlign);
+		
+		alignCenterX = ShapeJS.util.createButton(alignCenterX);
+		alignCenterX.addEventListener('click', setObjectsAlign);
+		
+		alignCenterY = ShapeJS.util.createButton(alignCenterY);
+		alignCenterY.addEventListener('click', setObjectsAlign);
 		
 		shapejs.addSubToolbarActions(align, 'alignFamily');
+		shapejs.addSubToolbarActions(alignCenters, 'alignCenterFamily');
 
 		
 
@@ -104,9 +137,6 @@
 		//=============================================================
 		//==================Helper Functions===========================
 		//=============================================================
-
-		
-
 		/*
 			Make the drop down and dropdown button
 		*/

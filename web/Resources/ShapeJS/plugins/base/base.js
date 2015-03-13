@@ -22,10 +22,10 @@
 
 		
 		//
-		//auto select newly added objects
-		canvas.on('object:added', function(options){
+		//auto select newly added objects, causes some issues with other events that may occur
+		/*canvas.on('object:added', function(options){
 			canvas.setActiveObject(options.target);
-		});
+		});*/
 		
 		//=======================================================
 		//=============add basic actions for the canvas==========
@@ -126,25 +126,19 @@
 		var resizeContext;
 		function enableHandling(e){
 			isResizing = true;
-			resizeContext = this.className;
+			resizeContext = this.value;
 		}
 		function resizeCanvas(e){
 			if (!isResizing){
 				return
 			}
 			
-			var element = shapejs.canvasDOM;
-			//loop through the parents of the element and get final offset
-			var elPositionX = 0;
-		    var elPositionY = 0;
-		    while(element) {
-		    	elPositionX += (element.offsetLeft - element.scrollLeft + element.clientLeft);
-		    	elPositionY += (element.offsetTop - element.scrollTop + element.clientTop);
-		        element = element.offsetParent;
-		    }			
-		    var width = e.clientX - elPositionX;
-		    var height = e.clientY - elPositionY;
-
+			var element = shapejs.canvasDOM;			
+			var elemRect = element.getBoundingClientRect();
+		    var width = e.clientX - elemRect.left;
+		    var height = e.clientY - elemRect.top;
+		    		    
+		    
 		    if (resizeContext == "dragW"){
 		    	shapejs.canvas.setWidth(width);
 		    }else if(resizeContext == "dragH"){
@@ -153,6 +147,8 @@
 			    shapejs.canvas.setWidth(width);
 			    shapejs.canvas.setHeight(height);
 		    }
+
+			canvas.renderAll();
 		}	
 
 		function disableHandling(e){
@@ -162,12 +158,15 @@
 		if (shapejs.options.canvas.rescale){
 			//add DOM for resize
 			var dragH = ShapeJS.util.createHTMLElement('<div class="dragH"></div>');
+			dragH.value = "dragH";
 			shapejs.canvas.wrapperEl.appendChild(dragH);
 			
 			var dragW = ShapeJS.util.createHTMLElement('<div class="dragW"></div>');
+			dragW.value = "dragW";
 			shapejs.canvas.wrapperEl.appendChild(dragW);
 			
 			var dragHW = ShapeJS.util.createHTMLElement('<div class="dragHW"></div>');
+			dragHW.value = "dragHW";
 			shapejs.canvas.wrapperEl.appendChild(dragHW);			
 			
 			dragH.addEventListener('mousedown', enableHandling);

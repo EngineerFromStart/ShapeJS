@@ -1,15 +1,4 @@
 (function(){
-	function setStrokeToolbar(shapejs){
-		var canvas = shapejs.canvas;
-
-
-
-		//stroke width
-
-		//stroke color
-
-		//
-	};
 
 	function setShapeToolbar(shapejs){
 		var canvas = shapejs.canvas;
@@ -32,7 +21,7 @@
 				top: canvas.height/2,
 				fill: "rgba(0, 0, 0, 0)",
 				stroke: '#ff0000',
- 	            strokeDashArray: [4, 4],
+ 	            strokeDashArray: [],
  	            borderColor: '#36fd00'
 			}));
 		});
@@ -45,7 +34,7 @@
 				top: canvas.height/2,
 				fill: "rgba(0, 0, 0, 0)",
 				stroke: '#ff0000',
- 	            strokeDashArray: [4, 4],
+ 	            strokeDashArray: [],
  	            borderColor: '#36fd00'
 			}));
 		});
@@ -101,32 +90,6 @@
 			shapejs.clearSubToolbarActions();
 		}
 
-		/* STROKE */
-		var strokeBtn = '<i class="fa fa-square-o"></i>';
-		strokeBtn = ShapeJS.util.createHTMLElement(strokeBtn);
-		strokeBtn.style.position = 'relative';
-		strokeBtn.style.fontSize = '26px';
-		var strokeBtnObj = ShapeJS.util.createHTMLElement('<i class="fa fa-square"></i>');
-		strokeBtnObj.style.position = 'absolute';
-		strokeBtnObj.style.top = '20%';
-		strokeBtnObj.style.left = '21%';
-		strokeBtnObj.style.fontSize = '14px';
-		strokeBtn.appendChild(strokeBtnObj);
-		strokeBtn = shapejs.createToolboxButton(strokeBtn, {
-			alt:"Add Stroke"
-		});//creates an element wrapped in <li>	
-
-		//Stroke button handlers
-		strokeBtn.activate = function(){
-			shapejs.clearSubToolbarActions();
-			setStrokeToolbar(shapejs);
-		}
-
-		strokeBtn.deactivate = function(){
-			shapejs.clearSubToolbarActions();
-		}
-
 		shapejs.addToolboxButton(shapesBtn, 'shape');
-		//shapejs.addToolboxButton(strokeBtn, 'stroke');
 	};
 }())
