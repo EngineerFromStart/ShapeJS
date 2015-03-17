@@ -87,8 +87,8 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
         	cropEl.scaleY = cropEl.scaleY/selectedEl.scaleY;
 
         	//set permanent left and top values, else clipTo would also move around when object moves
-        	cropEl.cropLeft = cropEl.left - selectedEl.left;
-        	cropEl.cropTop = cropEl.top - selectedEl.top;
+        	cropEl.cropLeft = (cropEl.left - selectedEl.left)/selectedEl.scaleX;
+        	cropEl.cropTop = (cropEl.top - selectedEl.top)/selectedEl.scaleY;
         	
         	cropEl.angle = 0;
         	
@@ -116,8 +116,8 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
                 	cropEl = new fabric.CropCircle(this.cropEl);
                 }
 
-            	cropEl.left = (-this.width)/2 + cropEl.cropLeft/2;
-            	cropEl.top = (-this.height)/2 + cropEl.cropTop/2;
+            	cropEl.left = -this.width/2 + cropEl.cropLeft;
+            	cropEl.top = -this.height/2 + cropEl.cropTop;
             	
             	cropEl.render(ctx, false);
             };
@@ -156,7 +156,8 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
  	            strokeDashArray: [2, 2],
  	            borderColor: '#36fd00',
  	            cornerColor: 'green',
- 	            hasRotatingPoint: false
+ 	            hasRotatingPoint: false,
+ 	            lockScalingFlip : true
  			});
  			
  			addCropEl(shapejs);
@@ -168,10 +169,14 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
  			
  			if (!selectedEl) return;
  			
+ 			var radius = selectedEl.width < selectedEl.height ? selectedEl.width*selectedEl.scaleX/2 : selectedEl.height*selectedEl.scaleY/2;
+ 			var scaleX = selectedEl.width < selectedEl.height ? 1 : selectedEl.width/selectedEl.height;
+ 			var scaleY = selectedEl.width < selectedEl.height ? selectedEl.height/selectedEl.width : 1;
  			shapejs.tempCropEl = new fabric.CropCircle({
- 				radius: selectedEl.width/2,
- 				scaleX: selectedEl.scaleX,
- 				scaleY: selectedEl.scaleY,
+ 				radius: radius,
+ 				scaleX: scaleX,
+ 				scaleY: scaleY,
+ 	            angle: selectedEl.angle,
  				left: selectedEl.left,
  				top: selectedEl.top,
  				fill: 'rgba(0,0,0,0.3)',
@@ -179,7 +184,8 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
  	            strokeDashArray: [2, 2],
  	            borderColor: '#36fd00',
  	            cornerColor: 'green',
- 	            hasRotatingPoint: false
+ 	            hasRotatingPoint: false,
+ 	            lockScalingFlip : true
  			});
  			
  			addCropEl(shapejs);

@@ -78,10 +78,13 @@
 		
 		function removeObj(e){
 			if(canvas.getActiveGroup()){
+				canvas.renderOnAddRemove = false;
 	        	canvas.getActiveGroup().forEachObject(function(o){
 	        		canvas.remove(o) 
 	        	});
+	        	canvas.renderOnAddRemove = true;
 	  			canvas.discardActiveGroup().renderAll();
+	  			
 		    }else if(canvas.getActiveObject()){
 	        	canvas.remove(canvas.getActiveObject());
 		    }
