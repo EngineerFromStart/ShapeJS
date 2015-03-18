@@ -48,29 +48,32 @@
 		        	}else{
 		        		throw "no alignment matched";
 		        	}
+			    	curObj.setCoords();
 		        }
 		    }else if(canvas.getActiveObject()){
 		    	curObj = canvas.getActiveObject();
 		    	if (alignTo == 'left'){
 	        		curObj.left = 0;
 	        	}else if (alignTo == 'right'){
-	        		curObj.top = canvas.height - curObj.height*curObj.scaleY;
+	        		curObj.left = canvas.width - curObj.width*curObj.scaleX;
 	        	}else if (alignTo == 'top'){
 	        		curObj.top = 0;
 	        	}else if (alignTo == 'bottom'){
 	        		curObj.top = canvas.height - curObj.height*curObj.scaleY;
 	        	}else if (alignTo == 'center'){
-	        		curObj.left = (curObj.width*curObj.scalex - canvas.width)/2;
-	        		curObj.top = (curObj.height*curObj.scaleY - canvas.height)/2;
+	        		curObj.left = (canvas.width - curObj.width*curObj.scaleX)/2;
+	        		curObj.top = (canvas.height - curObj.height*curObj.scaleY)/2;
 	        	}else if (alignTo == 'centerX'){
-	        		curObj.left = (curObj.width*curObj.scalex - canvas.width)/2;
+	        		curObj.left = (canvas.width - curObj.width*curObj.scaleX)/2;
 	        	}else if (alignTo == 'centerY'){
-	        		curObj.top = (curObj.height*curObj.scaleY - canvas.height)/2;
+	        		curObj.top = (canvas.height - curObj.height*curObj.scaleY)/2;
 	        	}else{
 	        		throw "no alignment matched";
 	        	}
-		    }		
+		    	curObj.setCoords();
+		    }
 			canvas.renderAll();
+			//canvas.trigger('object:modified');
 		}
 		
 		/*Text Align Code*/
@@ -126,8 +129,6 @@
 		shapejs.addSubToolbarActions(align, 'alignFamily');
 		shapejs.addSubToolbarActions(alignCenters, 'alignCenterFamily');
 
-		
-
 	}
 	/**/
 	ShapeJS.plugins['align'] = function(shapejs, options){
@@ -147,13 +148,11 @@
 		});//creates an element wrapped in <li>	
 
 		alignBtn.activate = function(){
-			canvas.isTextMode = true;
 			shapejs.clearSubToolbarActions();
 			setToolbar(shapejs);
 		}
 
 		alignBtn.deactivate = function(){
-			canvas.isTextMode = false;
 			shapejs.clearSubToolbarActions();
 		}
 

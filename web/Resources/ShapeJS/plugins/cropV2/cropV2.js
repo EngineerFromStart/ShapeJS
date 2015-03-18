@@ -43,6 +43,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
     
     function addCropEl(shapejs){
 		//add new one
+    	shapejs.disableHistoryStackChange = true;
 		shapejs.canvas.add(shapejs.tempCropEl);
 		shapejs.canvas.setActiveObject(shapejs.tempCropEl);
     }
@@ -50,6 +51,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 	function removeCropEl(shapejs){
 		shapejs.canvas.remove(shapejs.tempCropEl);
 		shapejs.tempCropEl = null;
+		shapejs.disableHistoryStackChange = false;
 	}
 	
 	function getSelectedEl(shapejs){
@@ -65,69 +67,68 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 		return selectedEl;
 	}
 	
+	function cropClicked(shapejs){
+		console.log(shapejs.selectedEl)
+		if (!shapejs.tempCropEl || !shapejs.selectedEl) return;
+		
+		console.info('Modifying Object: '+selectedEl+' for crop');
+		
+		var selectedEl = shapejs.selectedEl;
+		
+		var cropEl = fabric.util.object.clone(shapejs.tempCropEl);
+
+		shapejs.cropBtn.trigger('click');
+		
+    	cropEl.opacity = 0;
+    	//because all the clip objects also get scaled, you have to inverse the scales first
+    	cropEl.scaleX = cropEl.scaleX/selectedEl.scaleX;
+    	cropEl.scaleY = cropEl.scaleY/selectedEl.scaleY;
+
+    	//set permanent left and top values, else clipTo would also move around when object moves
+    	cropEl.cropLeft = (cropEl.left - selectedEl.left)/selectedEl.scaleX;
+    	cropEl.cropTop = (cropEl.top - selectedEl.top)/selectedEl.scaleY;
+    	
+    	cropEl.angle = 0;
+    	        	
+    	//we want to only have the current object hold the minified version of the cropEl.
+    	//this can used to recreate the crop later. Look above
+    	cropEl = cropEl.toObject();
+    	
+    	selectedEl.toObject = (function(toObject){
+            return function() {
+                return fabric.util.object.extend(toObject.call(this), {
+                    cropEl: cropEl
+                });
+            };
+        })(selectedEl.toObject);
+    	
+    	selectedEl.cropEl = cropEl;
+    	        	        	
+    	//create full version from minified stored cropEl and then clip using its render
+
+		selectedEl.clipTo = function(ctx){
+			var cropEl;
+            if (this.cropEl.type == 'cropRect') {
+            	cropEl = new fabric.CropRect(this.cropEl);
+            }else if (this.cropEl.type == 'cropCircle') {
+            	cropEl = new fabric.CropCircle(this.cropEl);
+            }
+
+        	cropEl.left = -this.width/2 + cropEl.cropLeft;
+        	cropEl.top = -this.height/2 + cropEl.cropTop;
+        	
+        	cropEl.render(ctx, false);
+        };
+        //render and disable crop (also removes cropEl)
+                	
+        shapejs.canvas.renderAll();            
+		
+        shapejs.historyStack.push(JSON.stringify(shapejs.canvas));
+        shapejs.historyIndex += 1;
+	}
+	
     function setToolbar(shapejs){
     	var canvas = shapejs.canvas;
-    	
-		var selectedEl;
-				
-		//TODO  move cropel to active object rather than selectedEl?
-		
-		function cropClicked(){
-			if (!shapejs.tempCropEl || !selectedEl) return;
-			
-			console.info('Modifying Object: '+selectedEl+' for crop');
-			
-			var cropEl = fabric.util.object.clone(shapejs.tempCropEl);
-
-			shapejs.cropBtn.trigger('click');
-			
-        	cropEl.opacity = 0;
-        	//because all the clip objects also get scaled, you have to inverse the scales first
-        	cropEl.scaleX = cropEl.scaleX/selectedEl.scaleX;
-        	cropEl.scaleY = cropEl.scaleY/selectedEl.scaleY;
-
-        	//set permanent left and top values, else clipTo would also move around when object moves
-        	cropEl.cropLeft = (cropEl.left - selectedEl.left)/selectedEl.scaleX;
-        	cropEl.cropTop = (cropEl.top - selectedEl.top)/selectedEl.scaleY;
-        	
-        	cropEl.angle = 0;
-        	
-        	//we want to only have the current object hold the minified version of the cropEl.
-        	//this can used to recreate the crop later. Look above
-        	cropEl = cropEl.toObject();
-        	
-        	selectedEl.toObject = (function(toObject){
-                return function() {
-                    return fabric.util.object.extend(toObject.call(this), {
-                        cropEl: cropEl
-                    });
-                };
-            })(selectedEl.toObject);
-        	
-        	selectedEl.cropEl = cropEl;
-        	        	        	
-        	//create full version from minified stored cropEl and then clip using its render
-
-			selectedEl.clipTo = function(ctx){
-				var cropEl;
-                if (this.cropEl.type == 'cropRect') {
-                	cropEl = new fabric.CropRect(this.cropEl);
-                }else if (this.cropEl.type == 'cropCircle') {
-                	cropEl = new fabric.CropCircle(this.cropEl);
-                }
-
-            	cropEl.left = -this.width/2 + cropEl.cropLeft;
-            	cropEl.top = -this.height/2 + cropEl.cropTop;
-            	
-            	cropEl.render(ctx, false);
-            };
-            //render and disable crop (also removes cropEl)
-            canvas.renderAll();            
-			
-            shapejs.historyStack.push(JSON.stringify(canvas));
-            shapejs.historyIndex += 1;
-		}
-		
 		
 		//Create the Proper Crop Shapes
 		var shapes = document.createElement('li');
@@ -139,7 +140,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 		]);
  		square = ShapeJS.util.createButton(square);
  		square.addEventListener('click', function(e){
- 			selectedEl = getSelectedEl(shapejs);
+ 			var selectedEl = shapejs.selectedEl = getSelectedEl(shapejs);
  			
  			if (!selectedEl) return;
  			
@@ -165,7 +166,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 
  		circle = ShapeJS.util.createButton(circle);
  		circle.addEventListener('click', function(e){
- 			selectedEl = getSelectedEl(shapejs);
+ 			var selectedEl = shapejs.selectedEl = getSelectedEl(shapejs);
  			
  			if (!selectedEl) return;
  			
@@ -209,7 +210,9 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
         var crop = ShapeJS.util.createHTMLElement('<a> <i class="fa fa-crop"></i> Crop</a>');
         cropContainer.appendChild(crop);
         crop = ShapeJS.util.createButton(crop)
-        crop.addEventListener('click', cropClicked);
+        crop.addEventListener('click', function(e){
+        	cropClicked(shapejs);
+        });
 
         shapejs.addSubToolbarActions(shapes, 'cropShapes');
         //shapejs.addSubToolbarActions(invertContainer, 'invert');
@@ -218,7 +221,6 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 
     ShapeJS.plugins['cropV2'] = function(shapejs, options){
     	var canvas = shapejs.canvas;
-    	
     	
     	var cropBtn = ShapeJS.util.createHTMLElement('<i class="fa fa-crop"></i>');
         cropBtn = shapejs.createToolboxButton(cropBtn, {
@@ -246,16 +248,11 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
         cropBtn.activate = function(){
             canvas.isCropMode = true;
             shapejs.clearSubToolbarActions();
-
-        	shapejs.disableHistoryStackChange = true;
-        	
             setToolbar(shapejs);
         }
 
         cropBtn.deactivate = function(){
             removeCropEl(shapejs);
-            shapejs.disableHistoryStackChange = false;
-
             canvas.isCropMode = false;
             shapejs.clearSubToolbarActions();
         }

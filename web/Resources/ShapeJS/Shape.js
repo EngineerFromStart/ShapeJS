@@ -71,6 +71,7 @@
 					//'path':"../bla.js" 
 				},
 				'adjustments':{},
+				'move':{},
 				'history':{},
 				'SCCP':{},//Select , Cut, Copy, Paste
 				'cropV2':{},

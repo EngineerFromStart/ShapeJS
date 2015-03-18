@@ -21,12 +21,14 @@
 	
 	function addSelectionEl(shapejs){
 		//add new one
+		shapejs.disableHistoryStackChange = true;
 		shapejs.canvas.add(shapejs.selectionEl);
+		shapejs.canvas.setActiveObject(shapejs.selectionEl);
     }
 	
 	function removeSelectionEl(shapejs){
 		shapejs.canvas.remove(shapejs.selectionEl);
-		shapejs.selectionEl = null;
+		shapejs.disableHistoryStackChange = false;
 	}
 	
 	function getSelectedEl(shapejs){
@@ -123,9 +125,11 @@
     	var copiedObjects = shapejs.copiedObjects;
     	
     	var selEl = shapejs.selectedEl;
-
-		canvas.remove(shapejs.selectionEl);
-		shapejs.selectionEl.setOpacity(0);
+    	
+    	var selectionEl = shapejs.selectionEl;
+    	
+    	removeSelectionEl(shapejs)
+		selectionEl.setOpacity(0);
     	
 		//hide all els except selected El
     	var tempOpacities = [];
@@ -153,10 +157,10 @@
 		new fabric.Image.fromURL(canvas.getElement().toDataURL(), function(canvasImg){
 			var canvasImgData = canvasImg.toDataURL({
 				format: 'png',
-				left: shapejs.selectionEl.left,
-				top: shapejs.selectionEl.top,
-				width: shapejs.selectionEl.width*shapejs.selectionEl.scaleX,
-				height: shapejs.selectionEl.height*shapejs.selectionEl.scaleY
+				left: selectionEl.left,
+				top: selectionEl.top,
+				width: selectionEl.width*selectionEl.scaleX + 2*selectionEl.strokeWidth*selectionEl.scaleX,
+				height: selectionEl.height*selectionEl.scaleY+ 2*selectionEl.strokeWidth*selectionEl.scaleY,
 			})
 			
 			new fabric.Image.fromURL(canvasImgData, function(oImg){
@@ -174,7 +178,7 @@
 			context.save();
 		    context.globalCompositeOperation = 'destination-out';
 		    context.beginPath();
-		    shapejs.selectionEl.render(context);
+		    selectionEl.render(context);
 		    context.fill();
 		    context.restore();
 			
@@ -182,8 +186,8 @@
 			new fabric.Image.fromURL(canvas.getElement().toDataURL(), function(oImg){
 				var newOrigImgData = oImg.toDataURL({
 					format: 'png',
-					left: shapejs.selectedEl.left,
-					top: shapejs.selectedEl.top,
+					left: selEl.left,
+					top: selEl.top,
 					width: selEl.width*selEl.scaleX + 2*selEl.strokeWidth*selEl.scaleX,
 					height: selEl.height*selEl.scaleY + 2*selEl.strokeWidth*selEl.scaleY
 				})
@@ -360,13 +364,10 @@
 			canvas.isSelectionMode = true;
 			shapejs.clearSubToolbarActions();
 			
-			shapejs.disableHistoryStackChange = true;
-			
 			setToolbar(shapejs);
 		}
 		selection.deactivate = function(){
 			removeSelectionEl(shapejs);
-			shapejs.disableHistoryStackChange = false;
 			shapejs.clearSubToolbarActions();
 			canvas.isSelectionMode = false;
 		}
