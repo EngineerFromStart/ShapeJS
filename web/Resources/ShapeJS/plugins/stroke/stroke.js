@@ -207,7 +207,10 @@
 		}
 		
 		shapejs.strokeWidth = ShapeJS.util.createHTMLElement('<input type="number" value="1" min="0" max="15" step="1"/>');
-		shapejs.strokeDashArray = ShapeJS.util.createHTMLElement('<input type="text" value=""/>');
+		shapejs.strokeDashArray = document.createElement('select');
+		
+		shapejs.strokeDashArray.appendChild(ShapeJS.util.createHTMLElement('<option value=",">Solid</option>'))
+		shapejs.strokeDashArray.appendChild(ShapeJS.util.createHTMLElement('<option value="4,4">Dash</option>'))
 		
 		shapejs.strokeWidth.addEventListener('change', setStrokeParams);
 		shapejs.strokeDashArray.addEventListener('change', setStrokeParams);

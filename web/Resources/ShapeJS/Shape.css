@@ -186,6 +186,7 @@
 	position: relative;
 	left: 50px;
 	top: 5px;
+	min-height: 275px;
 }
 
 .canvas-container{

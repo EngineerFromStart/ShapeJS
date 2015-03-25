@@ -71,7 +71,7 @@
 					//'path':"../bla.js" 
 				},
 				'adjustments':{},
-				'move':{},
+				//'move':{},
 				'history':{},
 				'SCCP':{},//Select , Cut, Copy, Paste
 				'cropV2':{},
@@ -392,7 +392,40 @@
 			}
 			return objA;
 		},
-
+		//extends one function with another function
+		/*****USE CASE*****
+			function say(val){
+				console.log(val);
+			}
+			
+			function to(){
+				console.log("to");
+			}
+			
+			function name(val, name){
+				console.log(name);
+			}
+			
+			var sayTo = extendFn(say, to);
+			var sayToName = extendFn(sayTo, name);
+			console.log(sayTo);
+			console.log(sayToName);
+			
+			sayToName("hi","Ben");
+			sayToName("Bye", "Ben");
+		*/
+		extendFn: function(orig, extFn){
+			//Override the original
+			return (function(oldFn, newFn) {
+			    function extendsInit() {
+			    	var args = Array.prototype.slice.call(arguments);
+			    	oldFn.apply(this, args);
+			        newFn.apply(this, args);
+			    }
+			
+			    return extendsInit;
+			})(orig, extFn);
+		},
 		//Gets the element by a query selector
 		getElement: function(query){
 			return document.querySelector(query);

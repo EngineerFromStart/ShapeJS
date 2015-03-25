@@ -36,19 +36,16 @@
 		//remove previous el
 		if (shapejs.selectionEl){
 			removeSelectionEl(shapejs);
+			shapejs.selectionEl = null;
 		}
 		//so the selected el is the elemnent that was last selected and not Crop type
-		if (shapejs.canvas.getActiveObject() && shapejs.canvas.getActiveObject().type.indexOf('selection') == -1){
-			selectedEl = shapejs.canvas.getActiveObject();
-		}
-		return selectedEl;
+		
+		return shapejs.canvas.getActiveObject();
 	}
 	
     function setToolbar(shapejs){
     	var canvas = shapejs.canvas;
-    	
-		shapejs.selectedEl = null;
-		
+    			
 		//Create the Proper Crop Shapes
 		var shapes = document.createElement('li');
 		var square = ShapeJS.util.createHTMLElement('<a><i class="fa fa-square"></i></a>');
@@ -59,9 +56,9 @@
 		]);
  		square = ShapeJS.util.createButton(square);
  		square.addEventListener('click', function(e){
- 			var selectedEl = shapejs.selectedEl = getSelectedEl(shapejs);
- 			
- 			if (!shapejs.selectedEl) return;
+ 			var selectedEl = shapejs.selectedEl;
+
+ 			if (!selectedEl) return;
  			
  			shapejs.selectionEl = new fabric.SelectionRect({
  				left: selectedEl.left,
@@ -77,16 +74,14 @@
  	            cornerColor: 'green',
  	            hasRotatingPoint: false,
  	            lockScalingFlip: true
- 			});
- 			
+ 			}); 			
  			addSelectionEl(shapejs);
  		});
 
  		circle = ShapeJS.util.createButton(circle);
  		circle.addEventListener('click', function(e){
- 			var selectedEl = shapejs.selectedEl = getSelectedEl(shapejs);
- 			
- 			if (!shapejs.selectedEl) return;
+ 			var selectedEl = shapejs.selectedEl;
+ 			if (!selectedEl) return;
  			
  			var radius = selectedEl.width < selectedEl.height ? selectedEl.width*selectedEl.scaleX/2 : selectedEl.height*selectedEl.scaleY/2;
  			var scaleX = selectedEl.width < selectedEl.height ? 1 : selectedEl.width/selectedEl.height;
@@ -107,14 +102,7 @@
  			});
  			
  			addSelectionEl(shapejs);
- 		});
- 		
- 		//if a non crop object is selected, must remove crop El 
- 		canvas.on('object:selected', function(options){
- 			if (options.target.type.indexOf('selection') == -1){
- 				removeSelectionEl(shapejs);
- 			};
- 		});   	
+ 		});	
  		
  		//add the two shapes
         shapejs.addSubToolbarActions(shapes, 'selectionShapes');
@@ -359,6 +347,12 @@
 		selection = shapejs.createToolboxButton(selection, {
 			alt:"Selection"
 		});
+		
+		canvas.on('object:selected', function(options){
+			if (options.target.type.indexOf('selection') == -1){
+ 				shapejs.selectedEl = getSelectedEl(shapejs);
+ 			};
+		})
 				
 		selection.activate = function(){
 			canvas.isSelectionMode = true;
@@ -372,5 +366,6 @@
 			canvas.isSelectionMode = false;
 		}
 		shapejs.addToolboxButton(selection, 'selection');
+		
 	}
 }());

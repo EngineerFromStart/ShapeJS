@@ -68,12 +68,13 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 	}
 	
 	function cropClicked(shapejs){
-		console.log(shapejs.selectedEl)
-		if (!shapejs.tempCropEl || !shapejs.selectedEl) return;
+		console.log(shapejs.cropSelectedEl)
+		if (!shapejs.tempCropEl || !shapejs.cropSelectedEl) return;
 		
 		console.info('Modifying Object: '+selectedEl+' for crop');
 		
-		var selectedEl = shapejs.selectedEl;
+		var selectedEl = shapejs.cropSelectedEl;
+		console.log(selectedEl);
 		
 		var cropEl = fabric.util.object.clone(shapejs.tempCropEl);
 
@@ -123,6 +124,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
                 	
         shapejs.canvas.renderAll();            
 		
+        shapejs.historyStack = shapejs.historyStack.slice(0, shapejs.historyIndex+1);
         shapejs.historyStack.push(JSON.stringify(shapejs.canvas));
         shapejs.historyIndex += 1;
 	}
@@ -140,7 +142,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 		]);
  		square = ShapeJS.util.createButton(square);
  		square.addEventListener('click', function(e){
- 			var selectedEl = shapejs.selectedEl = getSelectedEl(shapejs);
+ 			var selectedEl = shapejs.cropSelectedEl = getSelectedEl(shapejs);
  			
  			if (!selectedEl) return;
  			
@@ -166,7 +168,7 @@ fabric.CropCircle = fabric.util.createClass(fabric.Circle, {
 
  		circle = ShapeJS.util.createButton(circle);
  		circle.addEventListener('click', function(e){
- 			var selectedEl = shapejs.selectedEl = getSelectedEl(shapejs);
+ 			var selectedEl = shapejs.cropSelectedEl = getSelectedEl(shapejs);
  			
  			if (!selectedEl) return;
  			

@@ -10,7 +10,6 @@
     	
     	function colorPick(e){
         	shapejs.colorpicking = !shapejs.colorpicking;
-        	console.log(shapejs.colorpicking);
         	if (shapejs.colorpicking){
         		shapejs.colorCanvasCont.style.display = 'block';
         	}else{
