@@ -7,44 +7,113 @@
 			var x;
 			var y;
 			var curObj;
+			var temp;
+			var tempObj;
 			
 			if(canvas.getActiveGroup()){
 		        for (var i in canvas.getActiveGroup().objects){
 		        	curObj = canvas.getActiveGroup().objects[i];
+		        	tempObj = null;
+		        	if (curObj.cropEl){
+		        		tempObj = {
+		        			left: curObj.left + curObj.cropEl.cropLeft*curObj.scaleX,
+		        			top: curObj.top + curObj.cropEl.cropTop*curObj.scaleY,
+		        			width: curObj.cropEl.width*curObj.cropEl.scaleX,
+		        			height: curObj.cropEl.height*curObj.cropEl.scaleY
+		        		}
+	        		}
+		        	
 		        	if (alignTo == 'left'){
-		        		if (!x || x > curObj.left) x = curObj.left;
+		        		if (!x) x = 99999;
+		        		if (!tempObj && x > curObj.left) x = curObj.left;
+		        		else if (tempObj && x > tempObj.left) x = tempObj.left;
+		        		
 		        	}else if (alignTo == 'right'){
-		        		if (!x || x < (curObj.left + curObj.width*curObj.scaleX)) x = curObj.left + curObj.width*curObj.scaleX;
+		        		if (!x) x = -99999;
+		        		if (!tempObj && x < curObj.left + curObj.width*curObj.scaleX) x = curObj.left + curObj.width*curObj.scaleX;
+		        		else if (tempObj && x < tempObj.left + tempObj.width) x = tempObj.left + tempObj.width;
+		        		
 		        	}else if (alignTo == 'top'){
-		        		if (!y || y > curObj.top) y = curObj.top;
+		        		if (!y) y = 99999;
+		        		if (!tempObj && y > curObj.top) y = curObj.top;
+		        		else if (tempObj && y > tempObj.top) y = tempObj.top;
+		        	
 		        	}else if (alignTo == 'bottom'){
-		        		if (!y || y < (curObj.top + curObj.height*curObj.scaleY)) y = curObj.top + curObj.height*curObj.scaleY;
+		        		if (!y) y = -99999;
+		        		if (!tempObj && y < curObj.top + curObj.height*curObj.scaleY) y = curObj.top + curObj.height*curObj.scaleY;
+		        		else if (tempObj && y < tempObj.top + tempObj.height) y = tempObj.top + tempObj.height;
+		        		
 		        	}else if (alignTo == 'center'){
 		        		if (!x) x = curObj.left + curObj.width*curObj.scaleX/2;
+		        		if (tempObj) x = tempObj.left + tempObj.width/2;
 		        		if (!y) y = curObj.top + curObj.height*curObj.scaleY/2;
+		        		if (tempObj) y = tempObj.top + tempObj.height/2;
+		        		
 		        	}else if (alignTo == 'centerX'){
 		        		if (!x) x = curObj.left + curObj.width*curObj.scaleX/2;
+		        		if (tempObj) x = tempObj.left + tempObj.width/2;
+		        		
 		        	}else if (alignTo == 'centerY'){
 		        		if (!y) y = curObj.top + curObj.height*curObj.scaleY/2;
+		        		if (tempObj) y = tempObj.top + tempObj.height/2;
+		        	
 		        	}
 		        }
 		        for (var i in canvas.getActiveGroup().objects){
 		        	curObj = canvas.getActiveGroup().objects[i];
+		        	tempObj = null;
+		        	if (curObj.cropEl){
+		        		tempObj = {
+		        			left: curObj.left + curObj.cropEl.cropLeft*curObj.scaleX,
+		        			top: curObj.top + curObj.cropEl.cropTop*curObj.scaleY,
+		        			width: curObj.cropEl.width*curObj.cropEl.scaleX,
+		        			height: curObj.cropEl.height*curObj.cropEl.scaleY
+		        		}
+	        		}
+		        	
 		        	if (alignTo == 'left' && x){
 		        		curObj.left = x;
+		        		if (curObj.cropEl){
+		        			curObj.left = x - curObj.cropEl.cropLeft*curObj.scaleX;
+		        		}
+		        		
 		        	}else if (alignTo == 'right' && x){
 		        		curObj.left = x - curObj.width*curObj.scaleX;
+		        		if (tempObj){
+		        			curObj.left = x - (tempObj.width + curObj.cropEl.cropLeft*curObj.scaleX);
+		        		}
+		        		
 		        	}else if (alignTo == 'top' && y){
 		        		curObj.top = y;
+		        		if (curObj.cropEl){
+		        			curObj.top = y - curObj.cropEl.cropTop*curObj.scaleY;
+		        		}
+		        		
 		        	}else if (alignTo == 'bottom' && y){
 		        		curObj.top = y - curObj.height*curObj.scaleY;
+		        		if (tempObj){
+		        			curObj.top = y - (tempObj.height + curObj.cropEl.cropTop*curObj.scaleY);
+		        		}
 		        	}else if (alignTo == 'center'){
 		        		curObj.left = x - curObj.width*curObj.scaleX/2
 		        		curObj.top = y - curObj.height*curObj.scaleY/2
+		        		if (tempObj){
+		        			curObj.left = x - curObj.cropEl.cropLeft*curObj.scaleX - tempObj.width/2;
+		        			curObj.top = y - curObj.cropEl.cropTop*curObj.scaleY - tempObj.height/2;
+		        		}
+		        		
 		        	}else if (alignTo == 'centerX'){
 		        		curObj.left = x - curObj.width*curObj.scaleX/2
+		        		if (tempObj){
+		        			curObj.left = x - curObj.cropEl.cropLeft*curObj.scaleX - tempObj.width/2;
+		        		}
+		        		
 		        	}else if (alignTo == 'centerY'){
 		        		curObj.top = y - curObj.height*curObj.scaleY/2
+		        		if (tempObj){
+		        			curObj.top = y - curObj.cropEl.cropTop*curObj.scaleY - tempObj.height/2;
+		        		}
+		        		
 		        	}else{
 		        		throw "no alignment matched";
 		        	}
@@ -52,21 +121,59 @@
 		        }
 		    }else if(canvas.getActiveObject()){
 		    	curObj = canvas.getActiveObject();
+		    	
+		    	if (curObj.cropEl){
+	        		tempObj = {
+	        			left: curObj.left + curObj.cropEl.cropLeft*curObj.scaleX,
+	        			top: curObj.top + curObj.cropEl.cropTop*curObj.scaleY,
+	        			width: curObj.cropEl.width*curObj.cropEl.scaleX,
+	        			height: curObj.cropEl.height*curObj.cropEl.scaleY
+	        		}
+        		}
+		    	
 		    	if (alignTo == 'left'){
 	        		curObj.left = 0;
+	        		if (curObj.cropEl){
+	        			curObj.left = 0 - curObj.cropEl.cropLeft*curObj.scaleX;
+	        		}
 	        	}else if (alignTo == 'right'){
 	        		curObj.left = canvas.width - curObj.width*curObj.scaleX;
+	        		if (curObj.cropEl){
+	        			curObj.left = canvas.width - (tempObj.width + curObj.cropEl.cropLeft*curObj.scaleX);
+	        		}
 	        	}else if (alignTo == 'top'){
 	        		curObj.top = 0;
+	        		if (curObj.cropEl){
+	        			curObj.top = 0 - curObj.cropEl.cropTop*curObj.scaleY;
+	        		}
+	        		
 	        	}else if (alignTo == 'bottom'){
 	        		curObj.top = canvas.height - curObj.height*curObj.scaleY;
+	        		if (curObj.cropEl){
+	        			curObj.top = canvas.height - (tempObj.height + curObj.cropEl.cropTop*curObj.scaleY);
+	        		}
+	        		
 	        	}else if (alignTo == 'center'){
 	        		curObj.left = (canvas.width - curObj.width*curObj.scaleX)/2;
 	        		curObj.top = (canvas.height - curObj.height*curObj.scaleY)/2;
+	        		if (tempObj){
+	        			curObj.left = canvas.width/2 - curObj.cropEl.cropLeft*curObj.scaleX - tempObj.width/2;
+	        			curObj.top = canvas.height/2 - curObj.cropEl.cropTop*curObj.scaleY - tempObj.height/2;
+	        		}
+	        		
 	        	}else if (alignTo == 'centerX'){
 	        		curObj.left = (canvas.width - curObj.width*curObj.scaleX)/2;
+	        		if (tempObj){
+	        			curObj.left = canvas.width/2 - curObj.cropEl.cropLeft*curObj.scaleX - tempObj.width/2;
+	        		}
+	        		
 	        	}else if (alignTo == 'centerY'){
 	        		curObj.top = (canvas.height - curObj.height*curObj.scaleY)/2;
+	        		
+	        		if (tempObj){
+	        			curObj.top = canvas.height/2 - curObj.cropEl.cropTop*curObj.scaleY - tempObj.height/2;
+	        		}
+	        		
 	        	}else{
 	        		throw "no alignment matched";
 	        	}

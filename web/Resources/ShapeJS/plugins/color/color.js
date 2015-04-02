@@ -7,7 +7,7 @@
     
     function setToolbar(shapejs){
     	var canvas = shapejs.canvas;
-    	
+    	    	
     	function colorPick(e){
         	shapejs.colorpicking = !shapejs.colorpicking;
         	if (shapejs.colorpicking){
@@ -145,7 +145,6 @@
 		a.addEventListener('change', buildColor);
 		
 		shapejs.addSubToolbarActions(rgba, 'rgba');
-		
     }
 
     ShapeJS.plugins['color'] = function(shapejs, options){
@@ -163,7 +162,11 @@
 		shapejs.toolbox.colorBox.style.backgroundColor = shapejs.toolbox.colorInput.value;
 		
 		canvas.on('object:selected', function(options){
-			shapejs.toolbox.colorInput.value = new fabric.Color(options.target.get('fill')).toRgba();
+			if (options.target.type == "path"){
+				shapejs.toolbox.colorInput.value = new fabric.Color(options.target.get('stroke')).toRgba();
+			}else{
+				shapejs.toolbox.colorInput.value = new fabric.Color(options.target.get('fill')).toRgba();
+			}
 			shapejs.toolbox.colorInput.onchange();
 		});
 		
@@ -181,7 +184,13 @@
 			}
 			
 			if (canvas.getActiveObject()){
-				canvas.getActiveObject().setFill(colorVal.toRgba());
+
+				if (canvas.getActiveObject().type == "path"){
+					canvas.getActiveObject().setStroke(colorVal.toRgba());
+				}else{
+					canvas.getActiveObject().setFill(colorVal.toRgba());
+				}
+				
 				canvas.renderAll();
 			}
 		};

@@ -136,10 +136,8 @@
 		/*
 			the Toolbar to set when button is invoked
 		*/
-		function setToolbar(){
-			shapejs.toolbox.colorInput.onchange = function(){
-				canvas.freeDrawingBrush.color = this.value;
-			}
+		function setToolbar(){			
+			canvas.freeDrawingBrush.color = shapejs.toolbox.colorInput.value;
 			
 			var slider = document.createElement('ul');
 			slider.innerHTML = "W ";
