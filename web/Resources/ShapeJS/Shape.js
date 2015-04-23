@@ -236,9 +236,7 @@
 						ShapeJS.plugins[name](_this,  _this.options.plugins[name]);
 					}catch(e){
 						console.group("Could not load the plugin: '%s'", name);
-						console.error(e.name);
-						console.error(e.message);
-						console.error(e.stack);
+						console.error(e);
 						console.groupEnd();
 					}					
 

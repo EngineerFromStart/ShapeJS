@@ -107,6 +107,7 @@
     		
     		shapejs.toolbox.strokeInput.value = '#'+to_hex(data[0])+to_hex(data[1])+to_hex(data[2]);
     		shapejs.toolbox.strokeInput.onchange();
+    		canvas.trigger('object:modified');
     		shapejs.strokepicking = true;//gets negated later
     		strokePick();
     	})

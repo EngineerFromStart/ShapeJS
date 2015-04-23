@@ -103,7 +103,11 @@
 			bigSize.style.fontSize = "14px";
 			var size = ShapeJS.util.createHTMLElement('<select></select>');
 			for (var x = 16; x <= 60; x++){
-				size.appendChild(ShapeJS.util.createHTMLElement('<option value="'+x+'">'+x+'</option>'));
+				if (x == 22) {
+					size.appendChild(ShapeJS.util.createHTMLElement('<option value="'+x+'" selected>'+x+'</option>'));
+				}else{
+					size.appendChild(ShapeJS.util.createHTMLElement('<option value="'+x+'">'+x+'</option>'));
+				}				
 			}
 			
 			ShapeJS.util.appendMultipleChildren(fontSize, [
@@ -163,7 +167,7 @@
 				return {
 					fontFamily: fontFamily.value,
 					fontSize: size.value,
-					fill: shapejs.toolbox.colorInput.value
+					fill: 'rgba(0,0,0,1)'
 				}
 			}
 			textAdd.addEventListener('click', function(event){

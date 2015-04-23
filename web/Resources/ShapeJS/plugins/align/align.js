@@ -18,8 +18,8 @@
 		        		tempObj = {
 		        			left: curObj.left + curObj.cropEl.cropLeft*curObj.scaleX,
 		        			top: curObj.top + curObj.cropEl.cropTop*curObj.scaleY,
-		        			width: curObj.cropEl.width*curObj.cropEl.scaleX,
-		        			height: curObj.cropEl.height*curObj.cropEl.scaleY
+		        			width: curObj.cropEl.width*curObj.cropEl.scaleX*curObj.scaleX,
+		        			height: curObj.cropEl.height*curObj.cropEl.scaleY*curObj.scaleY
 		        		}
 	        		}
 		        	
@@ -66,8 +66,8 @@
 		        		tempObj = {
 		        			left: curObj.left + curObj.cropEl.cropLeft*curObj.scaleX,
 		        			top: curObj.top + curObj.cropEl.cropTop*curObj.scaleY,
-		        			width: curObj.cropEl.width*curObj.cropEl.scaleX,
-		        			height: curObj.cropEl.height*curObj.cropEl.scaleY
+		        			width: curObj.cropEl.width*curObj.cropEl.scaleX*curObj.scaleX,
+		        			height: curObj.cropEl.height*curObj.cropEl.scaleY*curObj.scaleY
 		        		}
 	        		}
 		        	
@@ -179,8 +179,8 @@
 	        	}
 		    	curObj.setCoords();
 		    }
+			canvas.trigger('object:modified');
 			canvas.renderAll();
-			//canvas.trigger('object:modified');
 		}
 		
 		/*Text Align Code*/

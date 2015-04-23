@@ -17,6 +17,17 @@
         	}
         }
     	
+    	function setObjectColor(colorVal){
+			if (canvas.getActiveObject() && event.target){
+				if (canvas.getActiveObject().type == "path"){
+					canvas.getActiveObject().setStroke(colorVal.toRgba());
+				}else{
+					canvas.getActiveObject().setFill(colorVal.toRgba());
+				}
+				canvas.trigger('object:modified');
+			}
+    	}
+    	
     	//add the eye dropper to toggle canvas
     	var colorPickerCont = shapejs.colorPickerCont = document.createElement('li');
     	colorPickerCont.style.position = 'relative';
@@ -102,9 +113,9 @@
     		var data = colorCanvas.ctx.getImageData(point.x, point.y, 1, 1).data;
     		
     		shapejs.toolbox.colorInput.value = '#'+to_hex(data[0])+to_hex(data[1])+to_hex(data[2]);
-    		shapejs.toolbox.colorInput.onchange();
+    		setObjectColor(shapejs.toolbox.colorInput.onchange());//set input and change object color
     		shapejs.colorpicking = true;//gets negated later
-    		colorPick();
+    		colorPick();//hides the colorpick canvas
     	})
     	
     	function to_hex(dec) {
@@ -132,7 +143,7 @@
 		function buildColor(){
 			if (a.value.indexOf(".") != -1 && a.value.substring(0) != "0") a.value = "0"+a.value.substring(0);
 			shapejs.toolbox.colorInput.value = 'rgba('+r.value+','+g.value+','+b.value+','+a.value+')';
-			shapejs.toolbox.colorInput.onchange();
+			setObjectColor(shapejs.toolbox.colorInput.onchange());//set input and change object color
 		}
 		
 		ShapeJS.util.appendMultipleChildren(rgba, [
@@ -182,18 +193,10 @@
 				shapejs.rgba.b.value = rgbaSrc[2];
 				shapejs.rgba.a.value = rgbaSrc[3];
 			}
-			
-			if (canvas.getActiveObject()){
-
-				if (canvas.getActiveObject().type == "path"){
-					canvas.getActiveObject().setStroke(colorVal.toRgba());
-				}else{
-					canvas.getActiveObject().setFill(colorVal.toRgba());
-				}
-				
-				canvas.renderAll();
-			}
+			return colorVal;
 		};
+		
+		
 		
 		var primaryColor = shapejs.createToolboxButton(shapejs.toolbox.colorBox, {
 			alt:"Object Color"

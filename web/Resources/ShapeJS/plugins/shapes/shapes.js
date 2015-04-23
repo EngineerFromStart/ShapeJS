@@ -52,7 +52,7 @@
 				{x: 20, y: 0}], {
 				left: canvas.width/2,
 				top: canvas.height/2,
-				fill: shapejs.toolbox.colorInput.value,
+				fill: "rgba(0, 0, 0, 0)",
 				stroke: '#ccc',
  	            strokeDashArray: [2, 2],
  	            borderColor: '#36fd00'
