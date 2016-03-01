@@ -5,7 +5,7 @@ Extensiable Image Manipulation Library
 ## Usage
 1. Import fabric.js
 2. import shape.js
-3. Init a new object
+3. Init a new ShapeJS object
 
 ### Example Usage (more ocming)
 
@@ -52,7 +52,7 @@ Extensiable Image Manipulation Library
 ```
 
 ## TODO - Future (not in specific order)
-1) move to commonjs / amd require model
-2) rewrite in ES6
-3) improve theme
-4) write tests
+1. move to commonjs / amd require model
+2. rewrite in ES6
+3. improve theme
+4. write tests
